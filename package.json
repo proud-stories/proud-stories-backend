@@ -5,6 +5,7 @@
   "description": "The fullstack application boilerplate for Adonisjs",
   "main": "index.js",
   "scripts": {
+    "serve:dev": "nodemon --watch app --watch bootstrap --watch config --watch .env -x \"node \" server.js",
     "start": "node server.js",
     "test": "node ace test"
   },
@@ -25,7 +26,8 @@
     "@adonisjs/ignitor": "^2.0.8",
     "@adonisjs/lucid": "^6.1.3",
     "@adonisjs/session": "^1.0.27",
-    "@adonisjs/shield": "^1.0.8"
+    "@adonisjs/shield": "^1.0.8",
+    "nodemon": "^1.19.1"
   },
   "devDependencies": {},
   "autoload": {
