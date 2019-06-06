@@ -15,7 +15,9 @@
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
+const Video = use("App/Models/Video");
 
-Route.on("/").render("welcome");
-
-Route.post("/", () => "Hello World");
+Route.get("/", async ({ response }) => {
+  const videos = await Video.all();
+  response.send(videos);
+});
