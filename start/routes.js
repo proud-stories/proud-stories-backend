@@ -21,3 +21,8 @@ Route.get("/", async ({ response }) => {
   const videos = await Video.all();
   response.send(videos);
 });
+
+Route.get("videos/:id", async ({ params }) => {
+  const video = await Video.find(params.id);
+  return video;
+});
