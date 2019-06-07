@@ -16,6 +16,7 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 const Video = use("App/Models/Video");
+const Drive = use('Drive');
 
 Route.get("/", async ({ response }) => {
   const videos = await Video.all();
@@ -37,8 +38,6 @@ Route.get("users/:id/videos", async ({ params }) => {
   const videos = await Video.where("user_id", user.id);
   return videos;
 });
-
-const Drive = use('Drive')
 
 Route.post('upload', async ({ request }) => {
 
