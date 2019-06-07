@@ -27,6 +27,13 @@ Route.get("videos/:id", async ({ params }) => {
   return video;
 });
 
-Route.get("users/:id", async ({ params }) => {});
+Route.get("users/:id", async ({ params }) => {
+  const user = await user.find(params.id);
+  return user;
+});
 
-Route.get("users/:id/videos", async ({ params }) => {});
+Route.get("users/:id/videos", async ({ params }) => {
+  const user = await user.find(params.id);
+  const videos = await Video.where("user_id", user.id);
+  return videos;
+});
