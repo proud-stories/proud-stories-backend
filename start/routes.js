@@ -16,9 +16,6 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 const Video = use("App/Models/Video");
-const upload = require('../services/file-upload');
-
-const singleUpload = upload.single('video');
 
 Route.get("/", async ({ response }) => {
   const videos = await Video.all();
@@ -41,15 +38,13 @@ Route.get("users/:id/videos", async ({ params }) => {
   return videos;
 });
 
+const Drive = use('Drive')
 
+Route.post('upload', async ({ request }) => {
 
-Route.post("/video-upload", async ({request, response}) => {
+  request.multipart.file('video', {}, async (file) => {
+    await Drive.disk('s3').put(file.clientName, file.stream)
+  })
 
-  singleUpload(request, response, function(err) {
-
-    if (err) {
-      return response.status(422).send({errors: [{title: 'File Upload Error', detail: err.message}] });
-    }
-    return response.json({'videoURL': request.file.name});
-  });
-});
+  await request.multipart.process()
+})
