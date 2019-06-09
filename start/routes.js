@@ -40,6 +40,7 @@ Route.get("users/:id/videos", async ({ params }) => {
 });
 
 Route.post('upload', async ({ request, response }) => {
+  const body = request.post()
 
   const Database = use('Database')
   const trx = await Database.beginTransaction()
@@ -51,10 +52,10 @@ Route.post('upload', async ({ request, response }) => {
   await request.multipart.process()
 
   const video = new Video();
-  video.user_id = 3; 
-  video.title = "test2";
-  video.description = "test description2"; 
-  video.url = "https://www/test2.com";
+  video.user_id = body.user_id;
+  video.title = body.title;
+  video.description = body.description;
+  video.url = body.url;
   
   await video.save(trx)
   trx.commit()
