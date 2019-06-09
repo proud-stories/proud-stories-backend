@@ -11,9 +11,10 @@ class VideosSchema extends Schema {
         .integer("user_id")
         .notNullable()
         .unique();
-      table.string("url", 150);
-      table.string("title", 150);
+      table.string("url", 150).notNullable().unique();
+      table.string("title", 150).notNullable();
       table.string("description", 300);
+      table.integer("likes");
       table.timestamps();
     });
   }
