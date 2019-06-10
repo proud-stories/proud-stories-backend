@@ -18,7 +18,7 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const Drive = use('Drive');
 
-Route.get("/", async ({ response }) => {
+Route.get("/videos", async ({ response }) => {
   const videos = await Video.all();
   response.send(videos);
 });
