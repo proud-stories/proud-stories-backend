@@ -1,1 +1,1 @@
-web: ENV_SILENT=true adonis migration:run && node server.js
+web: ENV_SILENT=true yarn add adonis && adonis migration:run && node server.js
