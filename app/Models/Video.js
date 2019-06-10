@@ -7,3 +7,4 @@ class Video extends Model {
 }
 
 module.exports = Video
+

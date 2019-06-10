@@ -39,11 +39,24 @@ Route.get("users/:id/videos", async ({ params }) => {
   return videos;
 });
 
-Route.post('upload', async ({ request }) => {
+Route.post('upload', async ({ request, response }) => {
+  const body = request.post()
+
+  const Database = use('Database')
+  const trx = await Database.beginTransaction()
 
   request.multipart.file('video', {}, async (file) => {
     await Drive.disk('s3').put(file.clientName, file.stream)
   })
 
   await request.multipart.process()
+
+  const video = new Video();
+  video.user_id = body.user_id;
+  video.title = body.title;
+  video.description = body.description;
+  video.url = body.url;
+  
+  await video.save(trx)
+  trx.commit()
 })
