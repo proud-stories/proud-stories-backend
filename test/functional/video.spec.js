@@ -1,7 +1,16 @@
 'use strict'
 
-const { test } = use('Test/Suite')('Video')
+const { test, trait } = use('Test/Suite')('Video')
+const Video = use('App/Models/Video')
 
-test('make sure 2 + 2 is 4', async ({ assert }) => {
-  assert.equal(2 + 2, 4)
+trait('Test/ApiClient')
+
+test('get list of videos which includes Uganda Pineapples', async ({ client }) => {
+  const response = await client.get('/videos').end()
+
+  response.assertStatus(200)
+  response.assertJSONSubset([{
+    title: 'Uganda Pineapples',
+    url: "https://proud-videos.s3-ap-northeast-1.amazonaws.com/video.mp4"
+  }])
 })
