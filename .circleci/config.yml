@@ -11,9 +11,6 @@ jobs:
       - run: #get dependencies
           name: get-dependencies
           command: yarn
-      - run: #start server
+      - run: #run tests
           name: start-server
-          command: yarn start & yarn test
-      - run: #stop server
-          name: stop-server
-          command: yarn stop
+          command: yarn start & yarn test && yarn stop
