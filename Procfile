@@ -1,1 +1,1 @@
-web: ENV_SILENT=true node server.js
+web: ENV_SILENT=true adonis migration:run && node server.js
