@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout
+      - run: #install yarn
+          name: install-yarn
+          command: sudo apt install yarn
+      - run: #get dependencies
+          name: get-dependencies
+          command: yarn
+      - run: #start server
+          name: start-server
+          command: yarn start & yarn test
+      - run: #stop server
+          name: stop-server
+          command: yarn stop
