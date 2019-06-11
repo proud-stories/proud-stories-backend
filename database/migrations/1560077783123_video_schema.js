@@ -10,7 +10,7 @@ class VideoSchema extends Schema {
       table
         .integer("user_id")
         .notNullable()
-        .references(users.id);
+        .references("users.id");
       table.string("url", 150).notNullable().unique();
       table.string("title", 150).notNullable();
       table.string("description", 300);

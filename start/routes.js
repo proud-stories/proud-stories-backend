@@ -28,12 +28,16 @@ Route.get("/videos", async ({
 });
 
 
-Route.get("/users", async ({ response }) => {
+Route.get("/users", async ({
+  response
+}) => {
   const users = await User.all();
   response.send(users);
 });
 
-Route.get("videos/:id", async ({ params }) => {
+Route.get("videos/:id", async ({
+  params
+}) => {
   const video = await Video.find(params.id);
   return video;
 });
@@ -54,23 +58,31 @@ Route.get("users/:id/videos", async ({
 });
 
 
-Route.post("users", async ({request}) => {
+
+Route.post("users", async ({
+  request
+}) => {
   const body = request.post();
 
   const user = new User();
   user.name = body.name;
   user.nickname = body.nickname;
   user.picture = body.picture;
-  
+
   await user.save()
 })
 
-Route.post('upload', async ({ request, response }) => {
+Route.post('upload', async ({
+  request,
+  response
+}) => {
   const body = request.post()
 
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
+    console.log(name)
+    console.log(value)
   })
 
   request.multipart.file('video', {}, async (file) => {
