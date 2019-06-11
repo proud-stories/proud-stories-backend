@@ -16,4 +16,4 @@ jobs:
           command: yarn
       - run: #run tests
           name: start-server
-          command: yarn start & yarn test && yarn stop
+          command: ENV_SILENT=true yarn start & ENV_SILENT=true yarn test && ENV_SILENT=true yarn stop
