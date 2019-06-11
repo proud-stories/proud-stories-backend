@@ -16,6 +16,7 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 const Video = use("App/Models/Video");
+const User = use("App/Models/User");
 const Drive = use('Drive');
 const randomstring = require("randomstring");
 
@@ -26,9 +27,13 @@ Route.get("/videos", async ({
   response.send(videos);
 });
 
-Route.get("videos/:id", async ({
-  params
-}) => {
+
+Route.get("/users", async ({ response }) => {
+  const users = await User.all();
+  response.send(users);
+});
+
+Route.get("videos/:id", async ({ params }) => {
   const video = await Video.find(params.id);
   return video;
 });
@@ -48,10 +53,19 @@ Route.get("users/:id/videos", async ({
   return videos;
 });
 
-Route.post('upload', async ({
-  request,
-  response
-}) => {
+
+Route.post("users", async ({request}) => {
+  const body = request.post();
+
+  const user = new User();
+  user.name = body.name;
+  user.nickname = body.nickname;
+  user.picture = body.picture;
+  
+  await user.save()
+})
+
+Route.post('upload', async ({ request, response }) => {
   const body = request.post()
 
   const video = new Video();
