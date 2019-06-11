@@ -16,11 +16,17 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use("Route");
 const Video = use("App/Models/Video");
+const User = use("App/Models/User");
 const Drive = use('Drive');
 
 Route.get("/videos", async ({ response }) => {
   const videos = await Video.all();
   response.send(videos);
+});
+
+Route.get("/users", async ({ response }) => {
+  const users = await User.all();
+  response.send(users);
 });
 
 Route.get("videos/:id", async ({ params }) => {
@@ -38,6 +44,17 @@ Route.get("users/:id/videos", async ({ params }) => {
   const videos = await Video.where("user_id", user.id);
   return videos;
 });
+
+Route.post("users", async ({request}) => {
+  const body = request.post();
+
+  const user = new User();
+  user.name = body.name;
+  user.nickname = body.nickname;
+  user.picture = body.picture;
+  
+  await user.save()
+})
 
 Route.post('upload', async ({ request, response }) => {
   const body = request.post()
