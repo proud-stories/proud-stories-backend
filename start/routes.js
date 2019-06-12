@@ -46,14 +46,13 @@ Route.get("users/:id/videos", async ({params}) => {
   return videos;
 });
 
-
-
-Route.post("users", async ({request}) => {
+Route.post("users", async ({request, response}) => {
   const body = request.post();
 
   const user = new User();
   user.name = body.name;
   await user.save()
+  response.send(user.id)
 })
 
 Route.post('upload', async ({request,response}) => {
@@ -62,8 +61,6 @@ Route.post('upload', async ({request,response}) => {
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
-    console.log(name)
-    console.log(value)
   })
 
   request.multipart.file('video', {}, async (file) => {
