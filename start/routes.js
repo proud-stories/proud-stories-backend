@@ -18,71 +18,49 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Drive = use('Drive');
-const randomstring = require("randomstring");
 
-Route.get("/videos", async ({
-  response
-}) => {
+Route.get("/videos", async ({response}) => {
   const videos = await Video.all();
   response.send(videos);
 });
 
 
-Route.get("/users", async ({
-  response
-}) => {
+Route.get("/users", async ({response}) => {
   const users = await User.all();
   response.send(users);
 });
 
-Route.get("videos/:id", async ({
-  params
-}) => {
+Route.get("videos/:id", async ({params}) => {
   const video = await Video.find(params.id);
   return video;
 });
 
-Route.get("users/:id", async ({
-  params
-}) => {
+Route.get("users/:id", async ({params}) => {
   const user = await user.find(params.id);
   return user;
 });
 
-Route.get("users/:id/videos", async ({
-  params
-}) => {
+Route.get("users/:id/videos", async ({params}) => {
   const user = await user.find(params.id);
   const videos = await Video.where("user_id", user.id);
   return videos;
 });
 
-
-
-Route.post("users", async ({
-  request
-}) => {
+Route.post("users", async ({request, response}) => {
   const body = request.post();
 
   const user = new User();
   user.name = body.name;
-  user.nickname = body.nickname;
-  user.picture = body.picture;
-
   await user.save()
+  response.send(user.id)
 })
 
-Route.post('upload', async ({
-  request,
-  response
-}) => {
+Route.post('upload', async ({request,response}) => {
   const body = request.post()
 
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
-    console.log(name)
-    console.log(value)
   })
 
   request.multipart.file('video', {}, async (file) => {
