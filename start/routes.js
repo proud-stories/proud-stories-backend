@@ -24,8 +24,8 @@ Route.get("/videos", async ({ response }) => {
   response.send(videos);
 });
 
-Route.get("/users", async ({ response }) => {
-  const users = await User.all();
+Route.get("/users", async ({ request, response }) => {
+  const users = await User.all()
   response.send(users);
 });
 
@@ -50,9 +50,6 @@ Route.post("users", async ({request}) => {
 
   const user = new User();
   user.name = body.name;
-  user.nickname = body.nickname;
-  user.picture = body.picture;
-  
   await user.save()
 })
 
