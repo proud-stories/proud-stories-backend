@@ -81,8 +81,6 @@ Route.post('upload', async ({
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
-    console.log(name)
-    console.log(value)
   })
 
   request.multipart.file('video', {}, async (file) => {
