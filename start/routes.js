@@ -18,6 +18,7 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Drive = use('Drive');
+const Database = use('Database')
 
 Route.get("/videos", async ({response}) => {
   const videos = await Video.all();
@@ -30,10 +31,29 @@ Route.get("/users", async ({response}) => {
   response.send(users);
 });
 
-Route.get("videos/:id", async ({params}) => {
+Route.get("videos/:id/edit", async ({params}) => {
   const video = await Video.find(params.id);
-  return video;
-});
+  return video; 
+})
+
+Route.patch("videos/:id", async ({params, request}) => {
+  const body = request.post()
+
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .update({ title: body.title, description: body.description })
+
+  return video; 
+})
+
+Route.delete('/videos/:id', async ({params, response}) => {
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .delete()
+  response.send(`Video was successfuly deleted`)
+})
 
 Route.get("users/:id", async ({params}) => {
   const user = await user.find(params.id);
@@ -56,7 +76,6 @@ Route.post("users", async ({request, response}) => {
 })
 
 Route.post('upload', async ({request,response}) => {
-  const body = request.post()
 
   const video = new Video();
   request.multipart.field((name, value) => {
