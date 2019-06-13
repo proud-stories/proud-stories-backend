@@ -18,7 +18,10 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Drive = use('Drive');
-const Database = use('Database')
+const Database = use('Database');
+const Env = use("Env");
+const secret_key = Env.get("STRIPE_SECRET_KEY")
+const stripe = require('stripe')(secret_key);
 
 Route.get("/videos", async ({response}) => {
   const videos = await Video.all();
@@ -95,3 +98,14 @@ Route.post('upload', async ({request,response}) => {
   await video.save(trx)
   trx.commit();
 })
+
+Route.post('/api/doPayment/', async (request, response) => {
+  return stripe.charges
+    .create({
+      amount: request.body.amount, 
+      currency: 'jpy',
+      source: request.body.tokenId,
+      description: 'Test payment',
+    })
+    .then(result => response.status(200).json(result));
+});
