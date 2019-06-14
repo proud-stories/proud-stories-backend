@@ -18,7 +18,10 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Drive = use('Drive');
-const randomstring = require("randomstring");
+const Database = use('Database');
+const Env = use("Env");
+const secret_key = Env.get("STRIPE_SECRET_KEY")
+const stripe = require('stripe')(secret_key);
 
 Route.get("/videos", async ({
   request,
@@ -26,70 +29,70 @@ Route.get("/videos", async ({
 }) => {
   const body = request.post();
   const Database = use('Database')
-  const userId = await Database
+  const videos = await Database
     // .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
     // .raw(`SELECT a.id, count(b."videoId"), (SELECT count("videoId") FROM video_likes WHERE video_likes."videoId" = 2) from videos a, video_likes b, users c WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY 1`)
     // .raw(`SELECT c.id, a.id, count(b."videoId"), (SELECT count(d."videoId") FROM video_likes d WHERE d."videoId" = b."videoId") from videos a, video_likes b, users c
     // WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY c.id, a.id, b."videoId"`)
     .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
-  for (let i of userId.rows) {
+  for (let i of videos.rows) {
     i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
     i.didLike = i.didLike[0].count > 0 ? true : false;
   }
-  response.send(userId.rows);
-
+  response.send(videos.rows);
 });
 
 
-Route.get("/users", async ({
-  response
-}) => {
+Route.get("/users", async ({response}) => {
   const users = await User.all();
   response.send(users);
 });
 
-Route.get("videos/:id", async ({
-  params
-}) => {
+Route.get("videos/:id/edit", async ({params}) => {
   const video = await Video.find(params.id);
-  return video;
-});
+  return video; 
+})
 
-Route.get("users/:id", async ({
-  params
-}) => {
+Route.patch("videos/:id", async ({params, request}) => {
+  const body = request.post()
+
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .update({ title: body.title, description: body.description })
+
+  return video; 
+})
+
+Route.delete('/videos/:id', async ({params, response}) => {
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .delete()
+  response.send(`Video was successfuly deleted`)
+})
+
+Route.get("users/:id", async ({params}) => {
   const user = await user.find(params.id);
   return user;
 });
 
-Route.get("users/:id/videos", async ({
-  params
-}) => {
+Route.get("users/:id/videos", async ({params}) => {
   const user = await user.find(params.id);
   const videos = await Video.where("user_id", user.id);
   return videos;
 });
 
-
-
-Route.post("users", async ({
-  request
-}) => {
+Route.post("users", async ({request, response}) => {
   const body = request.post();
 
   const user = new User();
   user.name = body.name;
-  user.nickname = body.nickname;
-  user.picture = body.picture;
-
   await user.save()
+  response.send(user.id)
 })
 
-Route.post('upload', async ({
-  request,
-  response
-}) => {
-  const body = request.post()
+Route.post('upload', async ({request,response}) => {
 
   const video = new Video();
   request.multipart.field((name, value) => {
@@ -109,6 +112,7 @@ Route.post('upload', async ({
   await video.save(trx)
   trx.commit();
 })
+
 
 Route.post('videos/likes', async ({
   request,
@@ -147,3 +151,16 @@ Route.post('videos/likes', async ({
       });
     })
 })
+
+Route.post('/api/doPayment/', async ({request, response}) => {
+  const body = request.post();
+
+  return stripe.charges
+    .create({
+      amount: body.amount, 
+      currency: 'jpy',
+      source: body.tokenId,
+      description: 'Test payment',
+    })
+    .then(result => response.status(200).json(result));
+});

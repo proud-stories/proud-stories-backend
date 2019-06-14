@@ -32,7 +32,8 @@
     "multer-s3": "^2.9.0",
     "nodemon": "^1.19.1",
     "pg": "^7.11.0",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "stripe": "^7.1.0"
   },
   "devDependencies": {},
   "autoload": {
