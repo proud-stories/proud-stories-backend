@@ -99,12 +99,14 @@ Route.post('upload', async ({request,response}) => {
   trx.commit();
 })
 
-Route.post('/api/doPayment/', async (request, response) => {
+Route.post('/api/doPayment/', async ({request, response}) => {
+  const body = request.post();
+
   return stripe.charges
     .create({
-      amount: request.body.amount, 
+      amount: body.amount, 
       currency: 'jpy',
-      source: request.body.tokenId,
+      source: body.tokenId,
       description: 'Test payment',
     })
     .then(result => response.status(200).json(result));
