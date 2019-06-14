@@ -23,10 +23,7 @@ const Env = use("Env");
 const secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(secret_key);
 
-Route.get("/videos", async ({
-  request,
-  response
-}) => {
+Route.get("/videos", async ({ request, response }) => {
   const body = request.post();
   const Database = use('Database')
   const videos = await Database
@@ -41,7 +38,6 @@ Route.get("/videos", async ({
   }
   response.send(videos.rows);
 });
-
 
 Route.get("/users", async ({response}) => {
   const users = await User.all();
@@ -73,12 +69,12 @@ Route.delete('/videos/:id', async ({params, response}) => {
 })
 
 Route.get("users/:id", async ({params}) => {
-  const user = await user.find(params.id);
+  const user = await User.find(params.id);
   return user;
 });
 
 Route.get("users/:id/videos", async ({params}) => {
-  const user = await user.find(params.id);
+  const user = await User.find(params.id);
   const videos = await Video.where("user_id", user.id);
   return videos;
 });
@@ -88,7 +84,7 @@ Route.post("users", async ({request, response}) => {
 
   const user = new User();
   user.name = body.name;
-  await user.save()
+  await User.save()
   response.send(user.id)
 })
 
@@ -113,11 +109,7 @@ Route.post('upload', async ({request,response}) => {
   trx.commit();
 })
 
-
-Route.post('videos/likes', async ({
-  request,
-  response
-}) => {
+Route.post('videos/likes', async ({request, response }) => {
   const body = request.post()
   const Database = use('Database')
 
@@ -164,3 +156,9 @@ Route.post('/api/doPayment/', async ({request, response}) => {
     })
     .then(result => response.status(200).json(result));
 });
+
+//balance
+Route.get('balance/:user_id', async ({req, res}) => {
+  const user = req.params.user_id;
+
+})
