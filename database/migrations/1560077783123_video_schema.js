@@ -14,7 +14,6 @@ class VideoSchema extends Schema {
       table.string("url", 150).notNullable().unique();
       table.string("title", 150).notNullable();
       table.string("description", 300);
-      table.integer("likes");
       table.timestamps();
     });
   }

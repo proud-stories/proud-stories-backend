@@ -21,10 +21,23 @@ const Drive = use('Drive');
 const randomstring = require("randomstring");
 
 Route.get("/videos", async ({
+  request,
   response
 }) => {
-  const videos = await Video.all();
-  response.send(videos);
+  const body = request.post();
+  const Database = use('Database')
+  const userId = await Database
+    // .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
+    // .raw(`SELECT a.id, count(b."videoId"), (SELECT count("videoId") FROM video_likes WHERE video_likes."videoId" = 2) from videos a, video_likes b, users c WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY 1`)
+    // .raw(`SELECT c.id, a.id, count(b."videoId"), (SELECT count(d."videoId") FROM video_likes d WHERE d."videoId" = b."videoId") from videos a, video_likes b, users c
+    // WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY c.id, a.id, b."videoId"`)
+    .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
+  for (let i of userId.rows) {
+    i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
+    i.didLike = i.didLike[0].count > 0 ? true : false;
+  }
+  response.send(userId.rows);
+
 });
 
 
@@ -95,4 +108,42 @@ Route.post('upload', async ({
 
   await video.save(trx)
   trx.commit();
+})
+
+Route.post('videos/likes', async ({
+  request,
+  response
+}) => {
+  const body = request.post()
+  const Database = use('Database')
+
+  const userId = await Database
+    .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes."userId" WHERE "userId" = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
+
+  if (userId.rows.length > 0) {
+    response.status(500).json({
+      status: 500,
+      error: "You reached your daily like limit"
+    });
+    return;
+  }
+
+
+  Database
+    .table('video_likes')
+    .insert({
+      videoId: body.videoId,
+      userId: body.userId,
+      created_at: Database.fn.now(),
+      updated_at: Database.fn.now()
+    }).then(() => {
+      response.status(200).json({
+        status: 200
+      })
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error
+      });
+    })
 })
