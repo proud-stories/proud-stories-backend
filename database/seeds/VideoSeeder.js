@@ -16,13 +16,18 @@ const Database = use('Database')
 
 class VideoSeeder {
   async run () {
-    const videos = await Database.table('videos').insert({
+    const videos = await Database.table('videos').insert([{
       url: 'https://proud-videos.s3-ap-northeast-1.amazonaws.com/video.mp4',
       title: 'Uganda Pineapples',
       description: 'Uganda pineapples are very special.',
-      likes: 1000,
       user_id: 1
-    })
+    },
+    {
+      title: "Tom Waits",
+      description: "Tom Waits sings a beautiful song.",
+      url: "https://proud-videos.s3-ap-northeast-1.amazonaws.com/waits.mp4",
+      user_id: 2
+    }])
   }
 }
 
