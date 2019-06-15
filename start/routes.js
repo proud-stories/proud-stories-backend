@@ -77,16 +77,19 @@ Route.get("/videofeed/:user_id", async ({ params }) => {
   return videos.rows;
 });
 
+//GET all users
 Route.get("/users", async ({response}) => {
   const users = await User.all();
   response.send(users);
 });
 
-Route.get("videos/:id/edit", async ({params}) => {
+//GET video by ID
+Route.get("videos/:id", async ({params}) => {
   const video = await Video.find(params.id);
   return video; 
 })
 
+//PATCH video by ID
 Route.patch("videos/:id", async ({params, request}) => {
   const body = request.post()
 
@@ -98,33 +101,38 @@ Route.patch("videos/:id", async ({params, request}) => {
   return video; 
 });
 
+//DELETE video by ID
 Route.delete('/videos/:id', async ({params, response}) => {
   const video = await Database
   .table('videos')
   .where('id', params.id)
   .delete()
-  response.send(`Video was successfuly deleted`)
+  response.send(video)
 });
 
+//GET user by ID
 Route.get("users/:id", async ({params}) => {
   const user = await User.find(params.id);
   return user;
 });
 
-Route.get("users/:id/videos", async ({params}) => {
-  const user = await User.find(params.id);
-  const videos = await Video.where("user_id", user.id);
+//GET videos by USER ID
+Route.get("videos/:user_id/", async ({params}) => {
+  const userId = params.id;
+  const videos = await Video.where("user_id", userId);
   return videos;
 });
 
+//POST user
 Route.post("users", async ({request, response}) => {
   const body = request.post();
   const user = new User();
   user.name = body.name;
   await user.save()
-  response.send(user.id)
+  response.send(user)
 })
 
+//POST video and save to S3
 Route.post('videos', async ({request,response}) => {
 
   const video = new Video();
@@ -148,7 +156,7 @@ Route.post('videos', async ({request,response}) => {
   trx.commit();
 })
 
-
+//POST likes, only one per day allowed
 Route.post('likes', async ({request, response }) => {
   const body = request.post()
   const Database = use('Database')
@@ -166,8 +174,8 @@ Route.post('likes', async ({request, response }) => {
   Database
     .table('likes')
     .insert({
-      videoId: body.videoId,
-      userId: body.userId,
+      video_id: body.video_id,
+      user_id: body.user_id,
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
     }).then(() => {
@@ -182,6 +190,7 @@ Route.post('likes', async ({request, response }) => {
     })
 })
 
+//Payment endpoint for stripe
 Route.post('/api/doPayment/', async ({request, response}) => {
   const body = request.post();
 
@@ -209,7 +218,7 @@ Route.get('transactions/:user_id', async ({params}) => {
     .table('transactions')
     .where('receiver_id', userId)
     .orWhere('sender_id', userId)
-  return { transactions, user_id: userId };
+  return { user_id: userId, transactions };
 })
 
 //POST transactions
