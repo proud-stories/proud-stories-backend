@@ -158,7 +158,19 @@ Route.post('/api/doPayment/', async ({request, response}) => {
 });
 
 //balance
-Route.get('balance/:user_id', async ({req, res}) => {
-  const user = req.params.user_id;
-
+Route.get('balance/:user_id', async ({params}) => {
+  let balance = 0;
+  const userId = params.user_id;
+  const transactions = await Database
+    .table('transactions')
+    .where('receiver_id', userId)
+  transactions.forEach(item => {
+      if (item.type === 'like') {
+        balance -= item.amount; 
+      }
+      else if (item.type === 'deposit') {
+        balance += item.amount;
+      }
+  })
+  return {balance, currency: 'usd'};
 })
