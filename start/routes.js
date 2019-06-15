@@ -24,6 +24,7 @@ const Env = use("Env");
 const secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(secret_key);
 
+//GET all videos from videos database
 Route.get("/videos", async ({ request, response }) => {
   const body = request.post();
   const Database = use('Database');
@@ -31,48 +32,48 @@ Route.get("/videos", async ({ request, response }) => {
   response.send(videos.rows);
 });
 
-//this endpoint gets the videos, along with aggregate like data for a specified user
+//GET videos with AGGREGATES total likes and USER likes
 Route.get("/videofeed/:user_id", async ({ params }) => {
   const userId = params.user_id;
   const Database = use('Database');
-  const videos = await Database.raw(
-    `SELECT
-        all_videos.id AS video_id,
-        all_videos.title,
-        all_videos.description,
-        all_videos.total_likes,
-        CASE WHEN user_likes.user_likes is NULL THEN 0 ELSE 1 END AS user_likes,
-        all_videos.url
-    FROM
-        (
-            SELECT
-                videos.id,
-                videos.title,
-                videos.description,
-                videos.url,
-                COUNT(videos.id) AS total_likes
-            FROM
-                videos JOIN likes ON videos.id = likes.video_id
-            GROUP BY
-                videos.id
-        ) AS all_videos
-        LEFT JOIN
-        (
-            SELECT
-                videos.id,
-                videos.title,
-                COUNT(videos.id) AS user_likes
-            FROM
-                videos JOIN likes ON videos.id = likes.video_id
-            WHERE
-                likes.user_id = ${userId}
-            GROUP BY
-                videos.id
-        ) AS user_likes
-        ON all_videos.id = user_likes.id
-        ORDER BY all_videos.id
-    ;`
-  );
+  const videos = await Database
+    .raw(`SELECT
+              all_videos.id AS video_id,
+              all_videos.title,
+              all_videos.description,
+              all_videos.total_likes,
+              CASE WHEN user_likes.user_likes is NULL THEN 0 ELSE 1 END AS user_likes,
+              all_videos.url
+          FROM
+              (
+                  SELECT
+                      videos.id,
+                      videos.title,
+                      videos.description,
+                      videos.url,
+                      COUNT(videos.id) AS total_likes
+                  FROM
+                      videos JOIN likes ON videos.id = likes.video_id
+                  GROUP BY
+                      videos.id
+              ) AS all_videos
+              LEFT JOIN
+              (
+                  SELECT
+                      videos.id,
+                      videos.title,
+                      COUNT(videos.id) AS user_likes
+                  FROM
+                      videos JOIN likes ON videos.id = likes.video_id
+                  WHERE
+                      likes.user_id = ${userId}
+                  GROUP BY
+                      videos.id
+              ) AS user_likes
+              ON all_videos.id = user_likes.id
+              ORDER BY all_videos.id
+          ;`
+    );
   return videos.rows;
 });
 
@@ -118,7 +119,6 @@ Route.get("users/:id/videos", async ({params}) => {
 
 Route.post("users", async ({request, response}) => {
   const body = request.post();
-
   const user = new User();
   user.name = body.name;
   await user.save()
@@ -129,7 +129,7 @@ Route.post('videos', async ({request,response}) => {
 
   const video = new Video();
 
-  //store vide on S3
+  //store video on S3
   request.multipart.field((name, value) => {
     video[name] = value;
   })
@@ -152,7 +152,7 @@ Route.post('videos', async ({request,response}) => {
 Route.post('likes', async ({request, response }) => {
   const body = request.post()
   const Database = use('Database')
-  const userId = body.userId;
+  
   const likes = await Database
     .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN likes ON users.id = likes.user_id WHERE user_id = ? AND likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
 
@@ -163,8 +163,6 @@ Route.post('likes', async ({request, response }) => {
     });
     return;
   }
-
-
   Database
     .table('likes')
     .insert({
@@ -226,13 +224,13 @@ Route.post('transactions', async ({request, response}) => {
   response.send(transaction)
 })
 
-//GET balance
+//GET balance by USER
 Route.get('balance/:user_id', async ({params}) => {
   const userId = params.user_id;
   const transactions = await Database
-  .table('transactions')
-  .where('receiver_id', userId)
-  .orWhere('sender_id', userId)
+    .table('transactions')
+    .where('receiver_id', userId)
+    .orWhere('sender_id', userId)
 
   let balance = 0;
   transactions.forEach(item => {
