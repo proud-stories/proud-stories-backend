@@ -24,7 +24,8 @@ const Env = use("Env");
 const stripe_secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(stripe_secret_key);
 
-//Organization of endpoints: Users, Videos, Likes, Transactions, Stripe
+//Organization of endpoints in this file:
+//Users, Videos, Likes, Transactions, Stripe
 
 //GET all users
 Route.get("/users", async ({response}) => {
@@ -97,16 +98,13 @@ Route.post('videos', async ({request,response}) => {
   await request.multipart.process()
 
   //store link in videos database
-  const Database = use('Database')
   const trx = await Database.beginTransaction()
-
   await video.save(trx)
   trx.commit();
 });
 //GET videos with AGGREGATES total likes and USER likes
 Route.get("/videofeed/:user_id", async ({ params }) => {
   const userId = params.user_id;
-  const Database = use('Database');
   const videos = await Database
     .raw(`SELECT
               all_videos.id AS video_id,
@@ -154,9 +152,7 @@ Route.get("/likes", async (req, res) => {
 });
 //POST likes, only one per day allowed
 Route.post('likes', async ({request, response }) => {
-  const body = request.post()
-  const Database = use('Database')
-  
+  const body = request.post()  
   const likes = await Database
     .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN likes ON users.id = likes.user_id WHERE user_id = ? AND likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
 
