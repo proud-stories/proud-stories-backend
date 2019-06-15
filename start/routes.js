@@ -22,13 +22,14 @@ const Database = use('Database');
 const Env = use("Env");
 const secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(secret_key);
+const randomstring = require('randomstring')
 
 Route.get("/videos", async ({
   request,
   response
 }) => {
   const body = request.post();
-  const Database = use('Database')
+  3
   const videos = await Database
     // .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
     // .raw(`SELECT a.id, count(b."videoId"), (SELECT count("videoId") FROM video_likes WHERE video_likes."videoId" = 2) from videos a, video_likes b, users c WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY 1`)
@@ -39,51 +40,91 @@ Route.get("/videos", async ({
     i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
     i.didLike = i.didLike[0].count > 0 ? true : false;
   }
+  console.log(videos.rows)
   response.send(videos.rows);
 });
 
 
-Route.get("/users", async ({response}) => {
+Route.get("/users", async ({
+  response
+}) => {
   const users = await User.all();
   response.send(users);
 });
 
-Route.get("videos/:id/edit", async ({params}) => {
+Route.get("videos/:id/edit", async ({
+  params
+}) => {
   const video = await Video.find(params.id);
-  return video; 
+  return video;
 })
 
-Route.patch("videos/:id", async ({params, request}) => {
+Route.patch("videos/:id", async ({
+  params,
+  request,
+  response
+}) => {
   const body = request.post()
 
   const video = await Database
-  .table('videos')
-  .where('id', params.id)
-  .update({ title: body.title, description: body.description })
-
-  return video; 
+    .table('videos')
+    .where('id', params.id)
+    .update({
+      title: body.title,
+      description: body.description
+    }).then(() => {
+      response.status(200).json({
+        status: 200
+      })
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error: "An error has occoured"
+      })
+    })
 })
 
-Route.delete('/videos/:id', async ({params, response}) => {
+Route.delete('/videos/:id', async ({
+  params,
+  response
+}) => {
   const video = await Database
-  .table('videos')
-  .where('id', params.id)
-  .delete()
-  response.send(`Video was successfuly deleted`)
+    .raw('delete from videos CASCADE where id = ?', params.id)
+    .then(() => {
+      response.status(200).json({
+        status: 200
+      })
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error: "An error has occoured"
+      })
+    })
 })
 
-Route.get("users/:id", async ({params}) => {
-  const user = await user.find(params.id);
+
+Route.get("users/:id", async ({
+  params
+}) => {
+  const user = await User.find(params.id);
   return user;
 });
 
-Route.get("users/:id/videos", async ({params}) => {
-  const user = await user.find(params.id);
-  const videos = await Video.where("user_id", user.id);
-  return videos;
+Route.get("users/:id/videos", async ({
+  params
+}) => {
+  let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" WHERE videos.user_id = ? GROUP BY videos.id`, params.id)
+  for (let i of videos.rows) {
+    i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
+    i.didLike = i.didLike[0].count > 0 ? true : false;
+  }
+  return videos.rows;
 });
 
-Route.post("users", async ({request, response}) => {
+Route.post("users", async ({
+  request,
+  response
+}) => {
   const body = request.post();
 
   const user = new User();
@@ -92,7 +133,10 @@ Route.post("users", async ({request, response}) => {
   response.send(user.id)
 })
 
-Route.post('upload', async ({request,response}) => {
+Route.post('upload', async ({
+  request,
+  response
+}) => {
 
   const video = new Video();
   request.multipart.field((name, value) => {
@@ -106,7 +150,6 @@ Route.post('upload', async ({request,response}) => {
   })
   await request.multipart.process()
 
-  const Database = use('Database')
   const trx = await Database.beginTransaction()
 
   await video.save(trx)
@@ -119,7 +162,6 @@ Route.post('videos/likes', async ({
   response
 }) => {
   const body = request.post()
-  const Database = use('Database')
 
   const userId = await Database
     .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes."userId" WHERE "userId" = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
@@ -152,12 +194,15 @@ Route.post('videos/likes', async ({
     })
 })
 
-Route.post('/api/doPayment/', async ({request, response}) => {
+Route.post('/api/doPayment/', async ({
+  request,
+  response
+}) => {
   const body = request.post();
 
   return stripe.charges
     .create({
-      amount: body.amount, 
+      amount: body.amount,
       currency: 'jpy',
       source: body.tokenId,
       description: 'Test payment',
