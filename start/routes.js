@@ -17,6 +17,7 @@
 const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
+const Transaction = use("App/Models/Transaction");
 const Drive = use('Drive');
 const Database = use('Database');
 const Env = use("Env");
@@ -84,7 +85,7 @@ Route.post("users", async ({request, response}) => {
 
   const user = new User();
   user.name = body.name;
-  await User.save()
+  await user.save()
   response.send(user.id)
 })
 
@@ -174,15 +175,15 @@ Route.get('transactions/:user_id', async ({params}) => {
 })
 
 //POST transactions
-Route.post('transactions', async ({req, res}) => {
-  const body = req.post();
-  const trx = new Transaction();
-  trx.sender_id = body.sender_id;
-  trx.receiver_id = body.receiver_id;
-  trx.amount = body.amount;
-  trx.type = body.type
-  await Transaction.save()
-  response.send(trx)
+Route.post('transactions', async ({request, response}) => {
+  const body = request.post();
+  const transaction = new Transaction();
+  transaction.sender_id = body.sender_id;
+  transaction.receiver_id = body.receiver_id;
+  transaction.amount = body.amount;
+  transaction.type = body.type
+  await transaction.save()
+  response.send(transaction)
 })
 
 //GET balance
