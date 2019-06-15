@@ -89,7 +89,7 @@ Route.post("users", async ({request, response}) => {
   response.send(user.id)
 })
 
-Route.post('upload', async ({request,response}) => {
+Route.post('videos', async ({request,response}) => {
 
   const video = new Video();
   request.multipart.field((name, value) => {
