@@ -21,8 +21,8 @@ const Transaction = use("App/Models/Transaction");
 const Drive = use('Drive');
 const Database = use('Database');
 const Env = use("Env");
-const secret_key = Env.get("STRIPE_SECRET_KEY")
-const stripe = require('stripe')(secret_key);
+const stripe_secret_key = Env.get("STRIPE_SECRET_KEY")
+const stripe = require('stripe')(stripe_secret_key);
 
 //GET all videos from videos database
 Route.get("/videos", async ({ request, response }) => {
