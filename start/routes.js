@@ -24,14 +24,85 @@ const Env = use("Env");
 const stripe_secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(stripe_secret_key);
 
+//Organization of endpoints: Users, Videos, Likes, Transactions, Stripe
+
+//GET all users
+Route.get("/users", async ({response}) => {
+  const users = await User.all();
+  response.send(users);
+});
+//GET user by ID
+Route.get("users/:id", async ({params}) => {
+  const user = await User.find(params.id);
+  return user;
+});
+//POST user
+Route.post("users", async ({request, response}) => {
+  const body = request.post();
+  const user = new User();
+  user.name = body.name;
+  await user.save()
+  response.send(user)
+})
 //GET all videos from videos database
 Route.get("/videos", async ({ request, response }) => {
   const body = request.post();
-  const Database = use('Database');
   const videos = await Database.table('videos');
-  response.send(videos.rows);
+  response.send(videos);
 });
+//GET video by VIDEO ID
+Route.get("videos/:id", async ({params}) => {
+  const video = await Video.find(params.id);
+  return video; 
+})
+//GET videos by USER ID
+Route.get("users/:user_id/videos", async ({params}) => {
+  const userId = params.user_id;
+  const videos = await Database.table('videos').where("user_id", userId);
+  return videos;
+});
+//PATCH video by ID
+Route.patch("videos/:id", async ({params, request}) => {
+  const body = request.post()
+  
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .update({ title: body.title, description: body.description })
+  
+  return video; 
+});
+//DELETE video by ID
+Route.delete('/videos/:id', async ({params, response}) => {
+  const video = await Database
+  .table('videos')
+  .where('id', params.id)
+  .delete()
+  response.send(video)
+});
+//POST video and save to S3
+Route.post('videos', async ({request,response}) => {
 
+  const video = new Video();
+
+  //store video on S3
+  request.multipart.field((name, value) => {
+    video[name] = value;
+  })
+  request.multipart.file('video', {}, async (file) => {
+    const newFile = randomstring.generate() + ".mp4";
+    await Drive.disk('s3').put(newFile, file.stream);
+    video.url = Drive.disk('s3').getUrl(newFile);
+  })
+  await request.multipart.process()
+
+  //store link in videos database
+  const Database = use('Database')
+  const trx = await Database.beginTransaction()
+
+  await video.save(trx)
+  trx.commit();
+});
 //GET videos with AGGREGATES total likes and USER likes
 Route.get("/videofeed/:user_id", async ({ params }) => {
   const userId = params.user_id;
@@ -76,86 +147,11 @@ Route.get("/videofeed/:user_id", async ({ params }) => {
     );
   return videos.rows;
 });
-
-//GET all users
-Route.get("/users", async ({response}) => {
-  const users = await User.all();
-  response.send(users);
+//GET all likes
+Route.get("/likes", async (req, res) => {
+  const likes = await Database.table('likes');
+  response.send(likes);
 });
-
-//GET video by ID
-Route.get("videos/:id", async ({params}) => {
-  const video = await Video.find(params.id);
-  return video; 
-})
-
-//PATCH video by ID
-Route.patch("videos/:id", async ({params, request}) => {
-  const body = request.post()
-
-  const video = await Database
-  .table('videos')
-  .where('id', params.id)
-  .update({ title: body.title, description: body.description })
-
-  return video; 
-});
-
-//DELETE video by ID
-Route.delete('/videos/:id', async ({params, response}) => {
-  const video = await Database
-  .table('videos')
-  .where('id', params.id)
-  .delete()
-  response.send(video)
-});
-
-//GET user by ID
-Route.get("users/:id", async ({params}) => {
-  const user = await User.find(params.id);
-  return user;
-});
-
-//GET videos by USER ID
-Route.get("videos/:user_id/", async ({params}) => {
-  const userId = params.id;
-  const videos = await Video.where("user_id", userId);
-  return videos;
-});
-
-//POST user
-Route.post("users", async ({request, response}) => {
-  const body = request.post();
-  const user = new User();
-  user.name = body.name;
-  await user.save()
-  response.send(user)
-})
-
-//POST video and save to S3
-Route.post('videos', async ({request,response}) => {
-
-  const video = new Video();
-
-  //store video on S3
-  request.multipart.field((name, value) => {
-    video[name] = value;
-  })
-  request.multipart.file('video', {}, async (file) => {
-    const newFile = randomstring.generate() + ".mp4";
-    await Drive.disk('s3').put(newFile, file.stream);
-    video.url = Drive.disk('s3').getUrl(newFile);
-  })
-  await request.multipart.process()
-
-  //store link in videos database
-  const Database = use('Database')
-  const trx = await Database.beginTransaction()
-
-  await video.save(trx)
-  trx.commit();
-})
-
 //POST likes, only one per day allowed
 Route.post('likes', async ({request, response }) => {
   const body = request.post()
@@ -189,7 +185,51 @@ Route.post('likes', async ({request, response }) => {
       });
     })
 })
-
+//GET all transactions
+Route.get('transactions', async ({params}) => {
+  const transactions = await Database
+  .table('transactions')
+  return transactions;
+})
+//GET transactions by USER
+Route.get('transactions/:user_id', async ({params}) => {
+  const userId = params.user_id;
+  const transactions = await Database
+  .table('transactions')
+  .where('receiver_id', userId)
+  .orWhere('sender_id', userId)
+  return { user_id: userId, transactions };
+})
+//POST transactions
+Route.post('transactions', async ({request, response}) => {
+  const body = request.post();
+  const transaction = new Transaction();
+  transaction.sender_id = body.sender_id;
+  transaction.receiver_id = body.receiver_id;
+  transaction.amount = body.amount;
+  transaction.type = body.type
+  await transaction.save()
+  response.send(transaction)
+})
+//GET balance by USER
+Route.get('balance/:user_id', async ({params}) => {
+  const userId = params.user_id;
+  const transactions = await Database
+  .table('transactions')
+  .where('receiver_id', userId)
+  .orWhere('sender_id', userId)
+  
+  let balance = 0;
+  transactions.forEach(item => {
+    if (item.type === 'like' && item.sender_id === userId) {
+      balance -= item.amount; 
+    }
+    else if (item.type === 'deposit' || item.receiver_id === userId) {
+      balance += item.amount;
+    }
+  })
+  return { balance, user_id: userId };
+})
 //Payment endpoint for stripe
 Route.post('/api/doPayment/', async ({request, response}) => {
   const body = request.post();
@@ -203,52 +243,3 @@ Route.post('/api/doPayment/', async ({request, response}) => {
     })
     .then(result => response.status(200).json(result));
 });
-
-//GET all transactions
-Route.get('transactions', async ({params}) => {
-  const transactions = await Database
-    .table('transactions')
-  return transactions;
-})
-
-//GET transactions by USER
-Route.get('transactions/:user_id', async ({params}) => {
-  const userId = params.user_id;
-  const transactions = await Database
-    .table('transactions')
-    .where('receiver_id', userId)
-    .orWhere('sender_id', userId)
-  return { user_id: userId, transactions };
-})
-
-//POST transactions
-Route.post('transactions', async ({request, response}) => {
-  const body = request.post();
-  const transaction = new Transaction();
-  transaction.sender_id = body.sender_id;
-  transaction.receiver_id = body.receiver_id;
-  transaction.amount = body.amount;
-  transaction.type = body.type
-  await transaction.save()
-  response.send(transaction)
-})
-
-//GET balance by USER
-Route.get('balance/:user_id', async ({params}) => {
-  const userId = params.user_id;
-  const transactions = await Database
-    .table('transactions')
-    .where('receiver_id', userId)
-    .orWhere('sender_id', userId)
-
-  let balance = 0;
-  transactions.forEach(item => {
-    if (item.type === 'like' && item.sender_id === userId) {
-      balance -= item.amount; 
-    }
-    else if (item.type === 'deposit' || item.receiver_id === userId) {
-      balance += item.amount;
-    }
-  })
-  return { balance, user_id: userId };
-})
