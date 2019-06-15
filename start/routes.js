@@ -26,18 +26,54 @@ const stripe = require('stripe')(secret_key);
 
 Route.get("/videos", async ({ request, response }) => {
   const body = request.post();
-  const Database = use('Database')
-  const videos = await Database
-    // .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
-    // .raw(`SELECT a.id, count(b."videoId"), (SELECT count("videoId") FROM video_likes WHERE video_likes."videoId" = 2) from videos a, video_likes b, users c WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY 1`)
-    // .raw(`SELECT c.id, a.id, count(b."videoId"), (SELECT count(d."videoId") FROM video_likes d WHERE d."videoId" = b."videoId") from videos a, video_likes b, users c
-    // WHERE c.id = b."userId" AND b."videoId" = a.id AND c.id = 1 GROUP BY c.id, a.id, b."videoId"`)
-    .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
-  for (let i of videos.rows) {
-    i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
-    i.didLike = i.didLike[0].count > 0 ? true : false;
-  }
+  const Database = use('Database');
+  const videos = await Database.table('videos');
   response.send(videos.rows);
+});
+
+//this endpoint gets the videos, along with aggregate like data for a specified user
+Route.get("/videofeed/:user_id", async ({ params }) => {
+  const userId = params.user_id;
+  const Database = use('Database');
+  const videos = await Database.raw(
+    `SELECT
+        all_videos.id AS video_id,
+        all_videos.title,
+        all_videos.description,
+        all_videos.total_likes,
+        CASE WHEN user_likes.user_likes is NULL THEN 0 ELSE 1 END AS user_likes,
+        all_videos.url
+    FROM
+        (
+            SELECT
+                videos.id,
+                videos.title,
+                videos.description,
+                videos.url,
+                COUNT(videos.id) AS total_likes
+            FROM
+                videos JOIN likes ON videos.id = likes.video_id
+            GROUP BY
+                videos.id
+        ) AS all_videos
+        LEFT JOIN
+        (
+            SELECT
+                videos.id,
+                videos.title,
+                COUNT(videos.id) AS user_likes
+            FROM
+                videos JOIN likes ON videos.id = likes.video_id
+            WHERE
+                likes.user_id = ${userId}
+            GROUP BY
+                videos.id
+        ) AS user_likes
+        ON all_videos.id = user_likes.id
+        ORDER BY all_videos.id
+    ;`
+  );
+  return videos.rows;
 });
 
 Route.get("/users", async ({response}) => {
@@ -59,7 +95,7 @@ Route.patch("videos/:id", async ({params, request}) => {
   .update({ title: body.title, description: body.description })
 
   return video; 
-})
+});
 
 Route.delete('/videos/:id', async ({params, response}) => {
   const video = await Database
@@ -67,7 +103,7 @@ Route.delete('/videos/:id', async ({params, response}) => {
   .where('id', params.id)
   .delete()
   response.send(`Video was successfuly deleted`)
-})
+});
 
 Route.get("users/:id", async ({params}) => {
   const user = await User.find(params.id);
@@ -112,14 +148,15 @@ Route.post('videos', async ({request,response}) => {
   trx.commit();
 })
 
+
 Route.post('likes', async ({request, response }) => {
   const body = request.post()
   const Database = use('Database')
+  const userId = body.userId;
+  const likes = await Database
+    .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN likes ON users.id = likes.user_id WHERE user_id = ? AND likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
 
-  const userId = await Database
-    .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes."userId" WHERE "userId" = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
-
-  if (userId.rows.length > 0) {
+  if (likes.rows.length > 0) {
     response.status(500).json({
       status: 500,
       error: "You reached your daily like limit"
@@ -129,7 +166,7 @@ Route.post('likes', async ({request, response }) => {
 
 
   Database
-    .table('video_likes')
+    .table('likes')
     .insert({
       videoId: body.videoId,
       userId: body.userId,
@@ -160,13 +197,14 @@ Route.post('/api/doPayment/', async ({request, response}) => {
     .then(result => response.status(200).json(result));
 });
 
-//GET transactions
+//GET all transactions
 Route.get('transactions', async ({params}) => {
   const transactions = await Database
     .table('transactions')
   return transactions;
 })
 
+//GET transactions by USER
 Route.get('transactions/:user_id', async ({params}) => {
   const userId = params.user_id;
   const transactions = await Database
