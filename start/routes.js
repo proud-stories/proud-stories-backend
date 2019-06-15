@@ -92,10 +92,11 @@ Route.post("users", async ({request, response}) => {
 Route.post('videos', async ({request,response}) => {
 
   const video = new Video();
+
+  //store vide on S3
   request.multipart.field((name, value) => {
     video[name] = value;
   })
-
   request.multipart.file('video', {}, async (file) => {
     const newFile = randomstring.generate() + ".mp4";
     await Drive.disk('s3').put(newFile, file.stream);
@@ -103,6 +104,7 @@ Route.post('videos', async ({request,response}) => {
   })
   await request.multipart.process()
 
+  //store link in videos database
   const Database = use('Database')
   const trx = await Database.beginTransaction()
 
@@ -110,7 +112,7 @@ Route.post('videos', async ({request,response}) => {
   trx.commit();
 })
 
-Route.post('videos/likes', async ({request, response }) => {
+Route.post('likes', async ({request, response }) => {
   const body = request.post()
   const Database = use('Database')
 
