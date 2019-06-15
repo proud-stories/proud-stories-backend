@@ -174,6 +174,16 @@ Route.get('transactions/:user_id', async ({params}) => {
 })
 
 //POST transactions
+Route.post('transactions', async ({req, res}) => {
+  const body = req.post();
+  const trx = new Transaction();
+  trx.sender_id = body.sender_id;
+  trx.receiver_id = body.receiver_id;
+  trx.amount = body.amount;
+  trx.type = body.type
+  await Transaction.save()
+  response.send(trx)
+})
 
 //GET balance
 Route.get('balance/:user_id', async ({params}) => {
