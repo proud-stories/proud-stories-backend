@@ -157,20 +157,40 @@ Route.post('/api/doPayment/', async ({request, response}) => {
     .then(result => response.status(200).json(result));
 });
 
-//balance
-Route.get('balance/:user_id', async ({params}) => {
-  let balance = 0;
+//GET transactions
+Route.get('transactions', async ({params}) => {
+  const transactions = await Database
+    .table('transactions')
+  return transactions;
+})
+
+Route.get('transactions/:user_id', async ({params}) => {
   const userId = params.user_id;
   const transactions = await Database
     .table('transactions')
     .where('receiver_id', userId)
+    .orWhere('sender_id', userId)
+  return { transactions, user_id: userId };
+})
+
+//POST transactions
+
+//GET balance
+Route.get('balance/:user_id', async ({params}) => {
+  const userId = params.user_id;
+  const transactions = await Database
+  .table('transactions')
+  .where('receiver_id', userId)
+  .orWhere('sender_id', userId)
+
+  let balance = 0;
   transactions.forEach(item => {
-      if (item.type === 'like') {
-        balance -= item.amount; 
-      }
-      else if (item.type === 'deposit') {
-        balance += item.amount;
-      }
+    if (item.type === 'like' && item.sender_id === userId) {
+      balance -= item.amount; 
+    }
+    else if (item.type === 'deposit' || item.receiver_id === userId) {
+      balance += item.amount;
+    }
   })
-  return {balance, currency: 'usd'};
+  return { balance, user_id: userId };
 })
