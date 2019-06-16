@@ -40,7 +40,6 @@ Route.get("/videos", async ({
     i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
     i.didLike = i.didLike[0].count > 0 ? true : false;
   }
-  console.log(videos.rows)
   response.send(videos.rows);
 });
 
@@ -137,7 +136,7 @@ Route.post('upload', async ({
   request,
   response
 }) => {
-
+  console.log("here")
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
@@ -156,7 +155,9 @@ Route.post('upload', async ({
   const videoId = await Database
     .table('videos')
     .insert({
-      ...video['$attributes']
+      ...video['$attributes'],
+      created_at: Database.fn.now(),
+      updated_at: Database.fn.now()
     })
     .returning('id').catch(() => {
       response.status(500).json({
@@ -176,8 +177,7 @@ Route.post('upload', async ({
       .into('video_categories')
       .then(() => {
         response.status(200).json({
-          status: 200,
-          error: "Your video has been uploaded successfully"
+          status: 200
         });
         return;
       })
