@@ -209,3 +209,23 @@ Route.post('/api/doPayment/', async ({
     })
     .then(result => response.status(200).json(result));
 });
+
+Route.get("categories", async ({
+  params,
+  response
+}) => {
+  let categories = await Database
+    .select('*')
+    .table('categories').then((categories) => {
+      response.status(200).json({
+        status: 200,
+        categories
+      });
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error
+      });
+    })
+
+});
