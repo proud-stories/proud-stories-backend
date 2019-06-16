@@ -149,11 +149,47 @@ Route.post('upload', async ({
     video.url = Drive.disk('s3').getUrl(newFile);
   })
   await request.multipart.process()
+  const categories = [
+    ...JSON.parse(video['$attributes'].categories)
+  ]
+  delete video['$attributes'].categories;
+  const videoId = await Database
+    .table('videos')
+    .insert({
+      ...video['$attributes']
+    })
+    .returning('id').catch(() => {
+      response.status(500).json({
+        status: 500,
+        error: "An error occoured saving the video"
+      });
+      return;
+    })
 
-  const trx = await Database.beginTransaction()
+  categories.forEach((category) => {
+    Database.insert({
+        videoid: videoId[0],
+        catid: category.id,
+        created_at: Database.fn.now(),
+        updated_at: Database.fn.now()
+      })
+      .into('video_categories')
+      .then(() => {
+        response.status(200).json({
+          status: 200,
+          error: "Your video has been uploaded successfully"
+        });
+        return;
+      })
+      .catch(() => {
+        response.status(500).json({
+          status: 500,
+          error: "An error has occoured trying to save the tags."
+        });
+        return;
+      })
+  })
 
-  await video.save(trx)
-  trx.commit();
 })
 
 
