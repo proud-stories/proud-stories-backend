@@ -43,6 +43,31 @@ Route.get("/videos", async ({
   response.send(videos.rows);
 });
 
+Route.post("/videos/filters", async ({
+  request,
+  response
+}) => {
+  const body = request.post()
+  const videos = await Database
+    .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" GROUP BY videos.id`)
+  for (let i of videos.rows) {
+    i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
+    i.didLike = i.didLike[0].count > 0 ? true : false;
+    i.categories = await Database.select('*').table('video_categories').where('videoid', i.id);
+  }
+
+  videos.rows = videos.rows.filter((item) => {
+    for (let i of body.categories) {
+      for (let cat of item.categories) {
+        if (cat.catid === i.id)
+          return true;
+      }
+    }
+    return false;
+  })
+  response.send(videos.rows);
+});
+
 
 Route.get("/users", async ({
   response
@@ -112,7 +137,7 @@ Route.get("users/:id", async ({
 Route.get("users/:id/videos", async ({
   params
 }) => {
-  let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" WHERE videos.user_id = ? GROUP BY videos.id`, params.id)
+  let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes."videoId" WHERE videos.user_id = ? GROUP BY videos.id ORDER BY videos.id DESC`, params.id)
   for (let i of videos.rows) {
     i.didLike = await Database.count('userId').table('video_likes').where('userId', i.user_id).where('videoId', i.id);
     i.didLike = i.didLike[0].count > 0 ? true : false;
@@ -136,7 +161,6 @@ Route.post('upload', async ({
   request,
   response
 }) => {
-  console.log("here")
   const video = new Video();
   request.multipart.field((name, value) => {
     video[name] = value;
@@ -148,6 +172,7 @@ Route.post('upload', async ({
     video.url = Drive.disk('s3').getUrl(newFile);
   })
   await request.multipart.process()
+
   const categories = [
     ...JSON.parse(video['$attributes'].categories)
   ]
