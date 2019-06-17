@@ -233,13 +233,17 @@ Route.get("/users/:user_id/videofeed", async ({ params }) => {
   return videos.rows;
 });
 //GET all likes
-Route.get("videos/likes", async ({ request, response }) => {
-  const likes = await Database.table("video_likes");
-  response.send(likes.rows);
+Route.get("videos/:id/likes", async ({ request, response, params }) => {
+  const likes = await Database.table("video_likes").where(
+    "video_id",
+    params.id
+  );
+  response.send(likes);
 });
 //POST likes, only one per day allowed
-Route.post("videos/likes", async ({ request, response }) => {
+Route.post("videos/:id/likes", async ({ request, response, params }) => {
   const body = request.post();
+  const videoId = params.id;
   const likes = await Database.raw(
     `SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes.user_id WHERE user_id = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`,
     body.user_id
@@ -254,7 +258,7 @@ Route.post("videos/likes", async ({ request, response }) => {
   }
   Database.table("video_likes")
     .insert({
-      video_id: body.video_id,
+      video_id: videoId,
       user_id: body.user_id,
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
