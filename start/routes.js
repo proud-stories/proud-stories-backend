@@ -294,7 +294,7 @@ Route.post('transactions', async ({request, response}) => {
   response.send(transaction)
 })
 //GET balance by USER
-Route.get('balance/:user_id', async ({params}) => {
+Route.get('users/:user_id/balance', async ({params}) => {
   const userId = params.user_id;
   const transactions = await Database
   .table('transactions')
