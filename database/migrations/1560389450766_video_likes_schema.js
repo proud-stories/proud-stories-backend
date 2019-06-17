@@ -8,8 +8,8 @@ class VideoLikesSchema extends Schema {
     this.create('video_likes', (table) => {
       table.integer('videoId').unsigned().notNullable();
       table.integer('userId').unsigned().notNullable();
-      table.foreign('videoId').references('videos.id');
-      table.foreign('userId').references('users.id');
+      table.foreign('videoId').references('videos.id').onDelete();
+      table.foreign('userId').references('users.id').onDelete();
       table.timestamps();
     })
   }
