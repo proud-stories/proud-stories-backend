@@ -12,12 +12,12 @@ Setup a bucket on Amazon S3 and a Stripe account. After cloning the repository, 
 
 To make migrations use
 
-```adonis migration:run``` (Adonis CLI installed)
+```adonis migration:run``` (Adonis CLI installed) <br>
 ```node ace migration:run``` (no Adonis CLI)
 
 and for seeds
 
-```adonis seed ---files FILENAME``` (Adonis CLI installed)
+```adonis seed ---files FILENAME``` (Adonis CLI installed)<br>
 ```node ace seed --files FILENAME``` (no Adonis CLI)
 
 #### Deployment
