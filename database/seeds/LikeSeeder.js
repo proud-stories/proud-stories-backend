@@ -16,7 +16,7 @@ const Database = use('Database')
 
 class LikeSeeder {
   async run () {
-    const likes = await Database.table('likes').insert(
+    const likes = await Database.table('video_likes').insert(
       [{
         video_id:1,
         user_id:2,
