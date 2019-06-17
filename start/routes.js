@@ -92,7 +92,7 @@ Route.get("/users/:user_id/videos", async ({ params }) => {
               all_videos.title,
               all_videos.description,
               all_videos.likes,
-              CASE WHEN user_likes.user_likes is NULL THEN false ELSE true END AS didLike,
+              CASE WHEN user_likes.user_likes is NULL THEN false ELSE true END AS liked,
               all_videos.url
           FROM
               (
