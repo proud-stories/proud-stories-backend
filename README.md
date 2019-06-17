@@ -31,13 +31,3 @@ then running
 ```ENV_SILENT node ace seed --files UserSeeder.js --force```
 
 and similarly for the other seed files.
-
-
-
-Use the adonis command to install the blueprint
-
-```bash
-adonis new yardstick
-```
-
-or manually clone the repo and then run `npm install`.
