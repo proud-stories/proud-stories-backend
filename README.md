@@ -1,10 +1,14 @@
 # Server for the proud stories mobile app
 
-This repo contains the server for the proud stories [mobile app](https://github.com/proud-stories/proud-stories-backend).
+This repo contains the backend API for the proud stories [mobile app](https://github.com/proud-stories/proud-stories-backend).
 
 ## Background
 
 This app was created in June 2019 by Ania Nakayama, Ben Dyer and Konstantin Schlegel over 2 weeks during the Code Chrysalis Immersive Bootcamp ([Cohort 8](https://medium.com/code-chrysalis/code-chrysalis-cohort-8-student-introductions-ba8980e6c3f8)) as an MVP inspired by [Proud Story](http://proud-story.com/en/homepage/).
+
+## Dependencies
+
+We use AdonisJS (ExpressJS and KnexJS) with a PostgreSQL database. Videos are stored as links to our Amazon S3 bucket, and we also have an endpoint connecting to Stripe for payment.
 
 ## Setup
 
