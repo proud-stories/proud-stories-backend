@@ -84,20 +84,45 @@ Route.get("videos/:id", async ({ params }) => {
   const video = await Video.find(params.id);
   return video;
 });
-
-//GET videos by USER ID
-Route.get("users/:id/videos", async ({ params }) => {
-  let videos = await Database.raw(
-    `SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id WHERE videos.user_id = ? GROUP BY videos.id ORDER BY videos.id DESC`,
-    params.id
-  );
-  for (let i of videos.rows) {
-    i.didLike = await Database.count("user_id")
-      .table("video_likes")
-      .where("user_id", i.user_id)
-      .where("video_id", i.id);
-    i.didLike = i.didLike[0].count > 0 ? true : false;
-  }
+//GET videos with AGGREGATES total likes and USER likes
+Route.get("/users/:user_id/videos", async ({ params }) => {
+  const userId = params.user_id;
+  const videos = await Database.raw(`SELECT
+              all_videos.id AS video_id,
+              all_videos.title,
+              all_videos.description,
+              all_videos.likes,
+              CASE WHEN user_likes.user_likes is NULL THEN false ELSE true END AS didLike,
+              all_videos.url
+          FROM
+              (
+                  SELECT
+                      videos.id,
+                      videos.title,
+                      videos.description,
+                      videos.url,
+                      COUNT(videos.id) AS likes
+                  FROM
+                      videos JOIN video_likes ON videos.id = video_likes.video_id
+                  GROUP BY
+                      videos.id
+              ) AS all_videos
+              LEFT JOIN
+              (
+                  SELECT
+                      videos.id,
+                      videos.title,
+                      COUNT(videos.id) AS user_likes
+                  FROM
+                      videos JOIN video_likes ON videos.id = video_likes.video_id
+                  WHERE
+                      video_likes.user_id = ${userId}
+                  GROUP BY
+                      videos.id
+              ) AS user_likes
+              ON all_videos.id = user_likes.id
+              ORDER BY all_videos.id
+          ;`);
   return videos.rows;
 });
 //PATCH video by ID
@@ -191,47 +216,7 @@ Route.post("videos", async ({ request, response }) => {
       });
   });
 });
-//GET videos with AGGREGATES total likes and USER likes
-Route.get("/users/:user_id/videofeed", async ({ params }) => {
-  const userId = params.user_id;
-  const videos = await Database.raw(`SELECT
-              all_videos.id AS video_id,
-              all_videos.title,
-              all_videos.description,
-              all_videos.total_likes,
-              CASE WHEN user_likes.user_likes is NULL THEN 0 ELSE 1 END AS user_likes,
-              all_videos.url
-          FROM
-              (
-                  SELECT
-                      videos.id,
-                      videos.title,
-                      videos.description,
-                      videos.url,
-                      COUNT(videos.id) AS total_likes
-                  FROM
-                      videos JOIN video_likes ON videos.id = video_likes.video_id
-                  GROUP BY
-                      videos.id
-              ) AS all_videos
-              LEFT JOIN
-              (
-                  SELECT
-                      videos.id,
-                      videos.title,
-                      COUNT(videos.id) AS user_likes
-                  FROM
-                      videos JOIN video_likes ON videos.id = video_likes.video_id
-                  WHERE
-                      video_likes.user_id = ${userId}
-                  GROUP BY
-                      videos.id
-              ) AS user_likes
-              ON all_videos.id = user_likes.id
-              ORDER BY all_videos.id
-          ;`);
-  return videos.rows;
-});
+
 //GET all likes
 Route.get("videos/:id/likes", async ({ request, response, params }) => {
   const likes = await Database.table("video_likes").where(
