@@ -7,8 +7,8 @@ class UserSchema extends Schema {
   up () {
     this.create('users', (table) => {
       table.increments();
-      table.string("name", 30)
-      // table.integer("balance").defaultTo(0);
+      table.string("name", 30);
+      table.string("auth_id");
       table.timestamps();
     })
   }
