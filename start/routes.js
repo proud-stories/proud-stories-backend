@@ -23,6 +23,7 @@ const Database = use('Database');
 const Env = use("Env");
 const stripe_secret_key = Env.get("STRIPE_SECRET_KEY")
 const stripe = require('stripe')(stripe_secret_key);
+const randomstring = require('randomstring');
 
 //Organization of endpoints in this file:
 //Users, Videos, Likes, Transactions, Stripe
@@ -51,39 +52,87 @@ Route.get("/videos", async ({ request, response }) => {
   const videos = await Database.table('videos');
   response.send(videos);
 });
+//GET all videos filtered by category
+Route.post("/videos/filters", async ({
+  request,
+  response
+}) => {
+  const body = request.post()
+  const videos = await Database
+    .raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id GROUP BY videos.id`)
+  for (let i of videos.rows) {
+    i.didLike = await Database.count('user_id').table('video_likes').where('user_id', i.user_id).where('video_id', i.id);
+    i.didLike = i.didLike[0].count > 0 ? true : false;
+    i.categories = await Database.select('*').table('video_categories').where('videoid', i.id);
+  }
+
+  videos.rows = videos.rows.filter((item) => {
+    for (let i of body.categories) {
+      for (let cat of item.categories) {
+        if (cat.cat_id === i.id)
+          return true;
+      }
+    }
+    return false;
+  })
+  response.send(videos.rows);
+});
 //GET video by VIDEO ID
 Route.get("videos/:id", async ({params}) => {
+
   const video = await Video.find(params.id);
-  return video; 
+  return video;
 })
+
 //GET videos by USER ID
-Route.get("users/:user_id/videos", async ({params}) => {
-  const userId = params.user_id;
-  const videos = await Database.table('videos').where("user_id", userId);
-  return videos;
+Route.get("users/:id/videos", async ({
+  params
+}) => {
+  let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id WHERE videos.user_id = ? GROUP BY videos.id ORDER BY videos.id DESC`, params.id)
+  for (let i of videos.rows) {
+    i.didLike = await Database.count('user_id').table('video_likes').where('user_id', i.user_id).where('video_id', i.id);
+    i.didLike = i.didLike[0].count > 0 ? true : false;
+  }
+  return videos.rows;
 });
 //PATCH video by ID
-Route.patch("videos/:id", async ({params, request}) => {
+Route.patch("videos/:id", async ({params, request, response}) => {
   const body = request.post()
-  
   const video = await Database
   .table('videos')
   .where('id', params.id)
   .update({ title: body.title, description: body.description })
-  
-  return video; 
+  .then((video) => {
+      response.status(200).json({
+        status: 200
+      })
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error: "An error has occoured"
+      })
+    })
 });
 //DELETE video by ID
-Route.delete('/videos/:id', async ({params, response}) => {
+Route.delete('/videos/:id', async ({
+  params,
+  response
+}) => {
   const video = await Database
-  .table('videos')
-  .where('id', params.id)
-  .delete()
-  response.send(video)
-});
+    .raw('delete from videos CASCADE where id = ?', params.id)
+    .then(() => {
+      response.status(200).json({
+        status: 200
+      })
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error: "An error has occoured"
+      })
+    })
+})
 //POST video and save to S3
 Route.post('videos', async ({request,response}) => {
-
   const video = new Video();
 
   //store video on S3
@@ -97,11 +146,48 @@ Route.post('videos', async ({request,response}) => {
   })
   await request.multipart.process()
 
-  //store link in videos database
-  const trx = await Database.beginTransaction()
-  await video.save(trx)
-  trx.commit();
-});
+  const categories = [
+    ...JSON.parse(video['$attributes'].categories)
+  ]
+  delete video['$attributes'].categories;
+  const videoId = await Database
+    .table('videos')
+    .insert({
+      ...video['$attributes'],
+      created_at: Database.fn.now(),
+      updated_at: Database.fn.now()
+    })
+    .returning('id').catch(() => {
+      response.status(500).json({
+        status: 500,
+        error: "An error occoured saving the video"
+      });
+      return;
+    })
+
+  categories.forEach((category) => {
+    Database.insert({
+        video_id: videoId[0],
+        cat_id: category.id,
+        created_at: Database.fn.now(),
+        updated_at: Database.fn.now()
+      })
+      .into('video_categories')
+      .then(() => {
+        response.status(200).json({
+          status: 200
+        });
+        return;
+      })
+      .catch(() => {
+        response.status(500).json({
+          status: 500,
+          error: "An error has occoured trying to save the tags."
+        });
+        return;
+      })
+  })
+})
 //GET videos with AGGREGATES total likes and USER likes
 Route.get("/videofeed/:user_id", async ({ params }) => {
   const userId = params.user_id;
@@ -122,7 +208,7 @@ Route.get("/videofeed/:user_id", async ({ params }) => {
                       videos.url,
                       COUNT(videos.id) AS total_likes
                   FROM
-                      videos JOIN likes ON videos.id = likes.video_id
+                      videos JOIN video_likes ON videos.id = video_likes.video_id
                   GROUP BY
                       videos.id
               ) AS all_videos
@@ -133,9 +219,9 @@ Route.get("/videofeed/:user_id", async ({ params }) => {
                       videos.title,
                       COUNT(videos.id) AS user_likes
                   FROM
-                      videos JOIN likes ON videos.id = likes.video_id
+                      videos JOIN video_likes ON videos.id = video_likes.video_id
                   WHERE
-                      likes.user_id = ${userId}
+                      video_likes.user_id = ${userId}
                   GROUP BY
                       videos.id
               ) AS user_likes
@@ -146,16 +232,16 @@ Route.get("/videofeed/:user_id", async ({ params }) => {
   return videos.rows;
 });
 //GET all likes
-Route.get("/likes", async (req, res) => {
-  const likes = await Database.table('likes');
+Route.get("videos/likes", async ({ request, response }) => {
+  const likes = await Database.table('video_likes');
   response.send(likes);
 });
 //POST likes, only one per day allowed
-Route.post('likes', async ({request, response }) => {
+Route.post('videos/likes', async ({ request, response }) => {
   const body = request.post()  
   const likes = await Database
-    .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN likes ON users.id = likes.user_id WHERE user_id = ? AND likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.userId);
-
+    .raw(`SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes.user_id WHERE user_id = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`, body.user_id);
+  //check one per day
   if (likes.rows.length > 0) {
     response.status(500).json({
       status: 500,
@@ -164,7 +250,7 @@ Route.post('likes', async ({request, response }) => {
     return;
   }
   Database
-    .table('likes')
+    .table('video_likes')
     .insert({
       video_id: body.video_id,
       user_id: body.user_id,
@@ -232,10 +318,30 @@ Route.post('/api/doPayment/', async ({request, response}) => {
 
   return stripe.charges
     .create({
-      amount: body.amount, 
+      amount: body.amount,
       currency: 'jpy',
       source: body.tokenId,
       description: 'Test payment',
     })
     .then(result => response.status(200).json(result));
+
+
+Route.get("categories", async ({
+  params,
+  response
+}) => {
+  let categories = await Database
+    .select('*')
+    .table('categories').then((categories) => {
+      response.status(200).json({
+        status: 200,
+        categories
+      });
+    }).catch((error) => {
+      response.status(500).json({
+        status: 500,
+        error
+      });
+    })
+
 });
