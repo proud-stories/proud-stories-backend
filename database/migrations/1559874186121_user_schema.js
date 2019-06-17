@@ -8,7 +8,7 @@ class UserSchema extends Schema {
     this.create('users', (table) => {
       table.increments();
       table.string("name", 30)
-      table.integer("balance").defaultTo(0);
+      // table.integer("balance").defaultTo(0);
       table.timestamps();
     })
   }

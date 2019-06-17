@@ -6,10 +6,10 @@ const Schema = use('Schema')
 class VideoLikesSchema extends Schema {
   up() {
     this.create('video_likes', (table) => {
-      table.integer('videoId').unsigned().notNullable();
-      table.integer('userId').unsigned().notNullable();
-      table.foreign('videoId').references('videos.id').onDelete();
-      table.foreign('userId').references('users.id').onDelete();
+      table.integer('video_id').unsigned().notNullable();
+      table.integer('user_id').unsigned().notNullable();
+      table.foreign('video_id').references('videos.id').onDelete();
+      table.foreign('user_id').references('users.id').onDelete();
       table.timestamps();
     })
   }
