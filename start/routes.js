@@ -66,7 +66,7 @@ Route.post("/videos/filters", async ({ request, response }) => {
     i.didLike = i.didLike[0].count > 0 ? true : false;
     i.categories = await Database.select("*")
       .table("video_categories")
-      .where("videoid", i.id);
+      .where("video_id", i.id);
   }
 
   videos.rows = videos.rows.filter((item) => {
