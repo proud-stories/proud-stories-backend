@@ -83,7 +83,22 @@ Route.get("videos/:id", async ({params}) => {
   const video = await Video.find(params.id);
   return video;
 })
-
+//GET video by VIDEO ID with COMMENTS
+Route.get("videos/:id/comments", async ({params}) => {
+  const video = await Video.find(params.id);
+  const comments = await Database.table('comments').select().where('video_id', params.id)
+  return comments;
+})
+//POST video by VIDEO ID with COMMENTS
+Route.post("videos/:id/comments", async ({request, params}) => {
+  const body = request.body()
+  const comment = new Comment();
+  comment.video_id = params.id;
+  comment.user_id = body.user_id;
+  comment.text = body.comment;
+  await comment.save();
+  response.send(comment);
+})
 //GET videos by USER ID
 Route.get("users/:id/videos", async ({
   params
