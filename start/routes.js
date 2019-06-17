@@ -114,7 +114,7 @@ Route.patch("videos/:id", async ({ params, request, response }) => {
     .catch((error) => {
       response.status(500).json({
         status: 500,
-        error: "An error has occoured"
+        error: "An error has occurred"
       });
     });
 });
@@ -132,7 +132,7 @@ Route.delete("/videos/:id", async ({ params, response }) => {
     .catch((error) => {
       response.status(500).json({
         status: 500,
-        error: "An error has occoured"
+        error: "An error has occurred"
       });
     });
 });
@@ -163,7 +163,7 @@ Route.post("videos", async ({ request, response }) => {
     .catch(() => {
       response.status(500).json({
         status: 500,
-        error: "An error occoured saving the video"
+        error: "An error occurred saving the video"
       });
       return;
     });
@@ -185,7 +185,7 @@ Route.post("videos", async ({ request, response }) => {
       .catch(() => {
         response.status(500).json({
           status: 500,
-          error: "An error has occoured trying to save the tags."
+          error: "An error has occurred trying to save the tags."
         });
         return;
       });
