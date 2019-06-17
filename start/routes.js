@@ -235,7 +235,7 @@ Route.get("/users/:user_id/videofeed", async ({ params }) => {
 //GET all likes
 Route.get("videos/likes", async ({ request, response }) => {
   const likes = await Database.table("video_likes");
-  response.send(likes);
+  response.send(likes.rows);
 });
 //POST likes, only one per day allowed
 Route.post("videos/likes", async ({ request, response }) => {
