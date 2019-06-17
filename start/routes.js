@@ -192,7 +192,7 @@ Route.post("videos", async ({ request, response }) => {
   });
 });
 //GET videos with AGGREGATES total likes and USER likes
-Route.get("/videofeed/:user_id", async ({ params }) => {
+Route.get("/users/:user_id/videofeed", async ({ params }) => {
   const userId = params.user_id;
   const videos = await Database.raw(`SELECT
               all_videos.id AS video_id,
@@ -277,7 +277,7 @@ Route.get("transactions", async ({ params }) => {
   return transactions;
 });
 //GET transactions by USER
-Route.get("transactions/:user_id", async ({ params }) => {
+Route.get("users/:user_id/transactions", async ({ params }) => {
   const userId = params.user_id;
   const transactions = await Database.table("transactions")
     .where("receiver_id", userId)
