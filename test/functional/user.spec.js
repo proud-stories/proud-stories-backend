@@ -33,3 +33,16 @@ test('Should GET user by id at /users/:id', async ({ client }) => {
     //remove fake user using Adonis
     await fakeUser.delete()  
 })
+
+test('Should POST users at /users/', async ({ client }) => {
+    //make POST request for a fakeUser
+    const fakeData = {name: randomstring.generate(30), auth_id: randomstring.generate(30)}
+    const response = await client.post('/users/').send(fakeData).end()
+
+    //find posted User, fail if not found
+    const foundUser = await User.findByOrFail(fakeData);
+    // console.log(foundUser['$attributes'])
+
+    //remove fake user using Adonis
+    await foundUser.delete()  
+})
