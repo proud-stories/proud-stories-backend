@@ -123,8 +123,34 @@ Route.get("/users/:user_id/videos", async ({ params }) => {
               ON all_videos.id = user_likes.id
               ORDER BY all_videos.id
           ;`);
-  return videos.rows;
-});
+})
+//GET video by VIDEO ID with COMMENTS
+Route.get("videos/:id/comments", async ({params}) => {
+  const video = await Video.find(params.id);
+  const comments = await Database.table('comments').select().where('video_id', params.id)
+  return comments;
+})
+//POST video by VIDEO ID with COMMENTS
+Route.post("videos/:id/comments", async ({request, params}) => {
+  const body = request.body()
+  const comment = new Comment();
+  comment.video_id = params.id;
+  comment.user_id = body.user_id;
+  comment.text = body.comment;
+  await comment.save();
+  response.send(comment);
+})
+// //GET videos by USER ID
+// Route.get("users/:id/videos", async ({
+//   params
+// }) => {
+//   let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id WHERE videos.user_id = ? GROUP BY videos.id ORDER BY videos.id DESC`, params.id)
+//   for (let i of videos.rows) {
+//     i.didLike = await Database.count('user_id').table('video_likes').where('user_id', i.user_id).where('video_id', i.id);
+//     i.didLike = i.didLike[0].count > 0 ? true : false;
+//   }
+//   return videos.rows;
+// });
 //PATCH video by ID
 Route.patch("videos/:id", async ({ params, request, response }) => {
   const body = request.post();
