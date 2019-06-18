@@ -40,11 +40,12 @@ Route.get("users/:id", async ({ params }) => {
 });
 //POST user
 Route.post("users", async ({ request, response }) => {
-  const body = request.post();
-  const user = new User();
-  user.name = body.name;
-  user.auth_id = body.id;
-  await user.save();
+  const {name, auth_id} = request.post()
+  const user = await User.create({ name, auth_id})
+  // const user = new User();
+  // user.name = body.name;
+  // user.auth_id = body.id;
+  // const userData = await user.save();
   response.send(user);
 });
 //GET all videos from videos database
