@@ -18,3 +18,18 @@ test('Should GET users at /users', async ({ client, assert }) => {
   //remove fake user using Adonis
   await fakeUser.delete()
 })
+
+test('Should GET user by id at /users/:id', async ({ client }) => {
+    //insert a fake user using Adonis
+    const fakeData = {name: randomstring.generate(30)}
+    const fakeUser = await User.create(fakeData)
+
+    //make GET request, assert the fake user is present
+    const endpoint = '/users/' + String(fakeUser.id);
+    const response = await client.get(endpoint).end()
+    response.assertStatus(200);
+    response.assertJSONSubset(fakeData)
+
+    //remove fake user using Adonis
+    await fakeUser.delete()  
+})
