@@ -32,6 +32,31 @@ To deploy on Heroku, use the Heroku Postgres add-on and install two build packs 
 
 then running
 
-```ENV_SILENT node ace seed --files UserSeeder.js --force```
+```ENV_SILENT=true node ace seed --files UserSeeder.js --force```
 
 and similarly for the other seed files.
+
+
+## API
+
+The following endpoints are available.
+
+GET,POST ```/users/:id```
+
+GET ```/users/:id/videos```
+
+POST ```/users/:id/feed```
+
+GET ```/users/:id/balance```
+
+GET,POST ```/users/:id/transactions```
+
+GET,POST,PATCH,DELETE ```/videos/:id```
+
+POST ```/videos/:id/likes```
+
+GET,POST,PATCH,DELETE ```/videos/:id/comments```
+
+GET ```/categories```
+
+POST ```/api/doPayment``` (stripe endpoint)

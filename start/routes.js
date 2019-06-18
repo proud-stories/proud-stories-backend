@@ -43,6 +43,7 @@ Route.post("users", async ({ request, response }) => {
   const body = request.post();
   const user = new User();
   user.name = body.name;
+  user.auth_id = body.id;
   await user.save();
   response.send(user);
 });
@@ -335,9 +336,9 @@ Route.post("/api/doPayment/", async ({ request, response }) => {
   return stripe.charges
     .create({
       amount: body.amount,
-      currency: "jpy",
+      currency: "JPY",
       source: body.tokenId,
-      description: "Test payment"
+      description: "Charge"
     })
     .then((result) => response.status(200).json(result));
 });
