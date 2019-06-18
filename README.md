@@ -45,7 +45,7 @@ GET,POST ```/users/:id```
 
 GET ```/users/:id/videos```
 
-GET,POST ```/users/:id/feed```
+POST ```/users/:id/feed```
 
 GET ```/users/:id/balance```
 
