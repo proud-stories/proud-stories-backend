@@ -123,6 +123,7 @@ Route.get("/users/:user_id/videos", async ({ params }) => {
               ON all_videos.id = user_likes.id
               ORDER BY all_videos.id
           ;`);
+      return videos.rows;
 })
 //GET video by VIDEO ID with COMMENTS
 Route.get("videos/:id/comments", async ({params}) => {
