@@ -35,3 +35,28 @@ then running
 ```ENV_SILENT=true node ace seed --files UserSeeder.js --force```
 
 and similarly for the other seed files.
+
+
+## API
+
+The following endpoints are available.
+
+GET,POST ```/users/:id```
+
+GET ```/users/:id/videos```
+
+GET,POST ```/users/:id/feed```
+
+GET ```/users/:id/balance```
+
+GET,POST ```/users/:id/transactions```
+
+GET,POST,PATCH,DELETE ```/videos/:id```
+
+POST ```/videos/:id/likes```
+
+GET,POST,PATCH,DELETE ```/videos/:id/comments```
+
+GET ```/categories```
+
+POST ```/api/doPayment``` (stripe endpoint)
