@@ -32,6 +32,6 @@ To deploy on Heroku, use the Heroku Postgres add-on and install two build packs 
 
 then running
 
-```ENV_SILENT node ace seed --files UserSeeder.js --force```
+```ENV_SILENT=true node ace seed --files UserSeeder.js --force```
 
 and similarly for the other seed files.
