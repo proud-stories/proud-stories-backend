@@ -13,22 +13,16 @@ trait('Test/ApiClient')
 //   assert.equal(2 + 2, 4)
 // })
 
-test('Should GET an array of users at /users', async ({ client, assert }) => {
-  const fakeName = randomstring.generate(30);
-  await User.create({
-    name: fakeName
-  })
+test('Should GET users at /users', async ({ client, assert }) => {
+  //insert a fake user using Adonis
+  const fakeData = {name: randomstring.generate(30)}
+  const fakeUser = await User.create(fakeData)
   
+  //make GET request, assert the fake user is present
   const response = await client.get('/users').end()
   response.assertStatus(200);
-  response.assertJSONSubset([{name: fakeName}])
-  
-  // client.delete('/users').send({name: fakeName});
-  // await axios.get('http://localhost:3333/users').then(res => {
-  //   const users = res.data;
-  //   // console.log(users)
-  //   assert.
-  //   assert.equal(users.length > 0, true);
-  //   // assert.equal(users.length > 0, true)
-  // })
+  response.assertJSONSubset([fakeData])
+
+  //remove fake user using Adonis
+  await fakeUser.delete()
 })
