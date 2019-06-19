@@ -162,8 +162,8 @@ Route.post("videos/:video_id/comments/:comment_id/replies", async ({request, res
   const { reply } = request.post()
   const { comment_id } = params;
   const replyData = { reply, comment_id }
-  const reply = await Reply.create(replyData);
-  response.send(reply);
+  const myreply = await Reply.create(replyData);
+  response.send(myreply);
 })
 // //GET videos by USER ID
 // Route.get("users/:id/videos", async ({
