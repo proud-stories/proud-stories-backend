@@ -20,49 +20,49 @@ class ReplySeeder {
       [{
         "comment_id":1,
         "user_id": 2,
-        "comment": "Yeah! So cool!",
+        "reply": "Yeah! So cool!",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":2,
         "user_id": 1,
-        "comment": "EW",
+        "reply": "EW",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":2,
         "user_id": 2,
-        "comment": "Get a hair cut",
+        "reply": "Get a hair cut",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":2,
         "user_id": 3,
-        "comment": "smh",
+        "reply": "smh",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":2,
         "user_id": 1,
-        "comment": "Wow",
+        "reply": "Wow",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":1,
         "user_id": 3,
-        "comment": "Niiiiiiiiiiiiiiiiiiiiiiiiiice.",
+        "reply": "Niiiiiiiiiiiiiiiiiiiiiiiiiice.",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "comment_id":1,
         "user_id": 3,
-        "comment": ":)",
+        "reply": ":)",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       }]
