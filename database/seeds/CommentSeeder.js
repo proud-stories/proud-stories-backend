@@ -16,7 +16,7 @@ const Database = use('Database')
 
 class CommentSeeder {
   async run () {
-    const comments = Database.table('comments').insert(
+    const comments = await Database.table('comments').insert(
       [{
         "video_id":1,
         "user_id": 1,
