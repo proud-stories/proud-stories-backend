@@ -16,56 +16,57 @@ const Database = use('Database')
 
 class ReplySeeder {
   async run () {
-    const replies = await Database.insert(
-    [{
-      "comment_id":1,
-      "user_id": 2,
-      "comment": "Yeah! So cool!",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":2,
-      "user_id": 1,
-      "comment": "EW",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":2,
-      "user_id": 2,
-      "comment": "Get a hair cut",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":2,
-      "user_id": 3,
-      "comment": "smh",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":2,
-      "user_id": 1,
-      "comment": "Wow",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":1,
-      "user_id": 3,
-      "comment": "Niiiiiiiiiiiiiiiiiiiiiiiiiice.",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    },
-    {
-      "comment_id":1,
-      "user_id": 3,
-      "comment": ":)",
-      "created_at": Database.fn.now(),
-      "updated_at": Database.fn.now()
-    }])
+    const replies = await Database.table('replies').insert(
+      [{
+        "comment_id":1,
+        "user_id": 2,
+        "comment": "Yeah! So cool!",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
+        "user_id": 1,
+        "comment": "EW",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
+        "user_id": 2,
+        "comment": "Get a hair cut",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
+        "user_id": 3,
+        "comment": "smh",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
+        "user_id": 1,
+        "comment": "Wow",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":1,
+        "user_id": 3,
+        "comment": "Niiiiiiiiiiiiiiiiiiiiiiiiiice.",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":1,
+        "user_id": 3,
+        "comment": ":)",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      }]
+    )
   }
 }
 
