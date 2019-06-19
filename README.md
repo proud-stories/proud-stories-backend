@@ -36,6 +36,9 @@ then running
 
 and similarly for the other seed files.
 
+## Testing
+
+Tests for each endpoint are written using the Adonis HTTP client and can be run with `adonis test`.
 
 ## API
 
