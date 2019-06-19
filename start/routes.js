@@ -140,16 +140,16 @@ Route.get("videos/:id/comments", async ({params}) => {
 })
 //POST comments with video id
 Route.post("videos/:video_id/comments", async ({request, params}) => {
-  const {comment, user_id } = request.body()
+  const { comment, user_id } = request.post()
   const { video_id } = params
   const commentData = { comment, user_id, video_id}
-  const comment = await Comment.create(commentData)
+  const mycomment = await Comment.create(commentData)
   // const comment = new Comment();
   // comment.video_id = params.id;
   // comment.user_id = body.user_id;
   // comment.comment = body.comment;
-  await comment.save();
-  response.send(comment);
+  // await comment.save();
+  response.send(mycomment);
 })
 //GET replies by VIDEO ID with COMMENTS
 Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, params}) => {
@@ -159,7 +159,7 @@ Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, par
 })
 //POST video by VIDEO ID with COMMENTS
 Route.post("videos/:video_id/comments/:comment_id/replies", async ({request, response, params}) => {
-  const { reply } = request.body()
+  const { reply } = request.post()
   const { comment_id } = params;
   const replyData = { reply, comment_id }
   const reply = await Reply.create(replyData);
