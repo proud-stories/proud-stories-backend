@@ -16,6 +16,7 @@ const Database = use('Database')
 
 class ReplySeeder {
   async run () {
+    const replies = await Database.insert(
     [{
       "comment_id":1,
       "user_id": 2,
@@ -64,7 +65,7 @@ class ReplySeeder {
       "comment": ":)",
       "created_at": Database.fn.now(),
       "updated_at": Database.fn.now()
-    }]
+    }])
   }
 }
 
