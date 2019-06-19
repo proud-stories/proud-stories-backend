@@ -18,6 +18,8 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Transaction = use("App/Models/Transaction");
+const Comment = use("App/Models/Comment")
+const Reply = use("App/Models/Reply")
 const Drive = use("Drive");
 const Database = use("Database");
 const Env = use("Env");
@@ -130,21 +132,38 @@ Route.get("/users/:user_id/videos", async ({ params }) => {
           ;`);
       return videos.rows;
 })
-//GET video by VIDEO ID with COMMENTS
+//GET comments by video id
 Route.get("videos/:id/comments", async ({params}) => {
   // const video = await Video.find(params.id);
   const comments = await Database.table('comments').where('video_id', params.id)
   return comments;
 })
-//POST video by VIDEO ID with COMMENTS
-Route.post("videos/:id/comments", async ({request, params}) => {
-  const body = request.body()
-  const comment = new Comment();
-  comment.video_id = params.id;
-  comment.user_id = body.user_id;
-  comment.text = body.comment;
+//POST comments with video id
+Route.post("videos/:video_id/comments", async ({request, params}) => {
+  const {comment, user_id } = request.body()
+  const { video_id } = params
+  const commentData = { comment, user_id, video_id}
+  const comment = await Comment.create(commentData)
+  // const comment = new Comment();
+  // comment.video_id = params.id;
+  // comment.user_id = body.user_id;
+  // comment.comment = body.comment;
   await comment.save();
   response.send(comment);
+})
+//GET replies by VIDEO ID with COMMENTS
+Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, params}) => {
+  // const video = await Video.find(params.id)reply;
+  const replies = await Database.table('replies').where('comment_id', params.com_id)
+  response.send(replies);
+})
+//POST video by VIDEO ID with COMMENTS
+Route.post("videos/:video_id/comments/:comment_id/replies", async ({request, response, params}) => {
+  const { reply } = request.body()
+  const { comment_id } = params;
+  const replyData = { reply, comment_id }
+  const reply = await Reply.create(replyData);
+  response.send(reply);
 })
 // //GET videos by USER ID
 // Route.get("users/:id/videos", async ({
