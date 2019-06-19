@@ -86,20 +86,25 @@ test('Should GET all videos at /videos (no aggregates)', async ({ client, assert
 })
 
 test('Should POST a new video at /videos ', async ({ client }) => {
-    //make POST request for a fakeUser
+    console.log("Hello!")
+    //make POST request for a fakeVideo
     const fakeData = {
-      user_id: 3,
-      // url: 'google.com',
+      user_id: 1,
+      // url: randomstring.generate(10),
       title: randomstring.generate(10),
-      description: randomstring.generate(30)
+      description: randomstring.generate(10)
     }
+    // const fakeVideo = await Video.create(fakeData)
     const response = await client
       .post('/videos/')
-      .field(fakeData)
+      .field('user_id', 1)
+      .field('title', fakeData.title)
+      .field('description', fakeData.description)
       .attach('video', Helpers.resourcesPath('waits.mp4'))
+      // .send(fakeData)
       .end()
   
-    //find posted User, fail if not found
+    //find posted Video, fail if not found
     const foundVideo = await Video.findByOrFail(fakeData);
     // console.log(foundUser['$attributes'])
   
