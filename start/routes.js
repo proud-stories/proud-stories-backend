@@ -17,6 +17,7 @@
 const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
+const Like = use("App/Models/Like");
 const Transaction = use("App/Models/Transaction");
 const Drive = use("Drive");
 const Database = use("Database");
@@ -30,6 +31,7 @@ const randomstring = require("randomstring");
 
 //GET all users
 Route.get("/users", async ({ response }) => {
+  console.log("Hello!")
   const users = await User.all();
   response.send(users);
 });
@@ -40,6 +42,7 @@ Route.get("users/:id", async ({ params }) => {
 });
 //POST user
 Route.post("users", async ({ request, response }) => {
+  // console.log("got here")
   const {name, auth_id} = request.post()
   const user = await User.create({ name, auth_id})
   // const user = new User();
@@ -50,6 +53,7 @@ Route.post("users", async ({ request, response }) => {
 });
 //GET all videos from videos database
 Route.get("/videos", async ({ request, response }) => {
+  // console.log("Got here")
   const body = request.post();
   const videos = await Database.table("videos");
   response.send(videos);
@@ -190,8 +194,11 @@ Route.delete("/videos/:id", async ({ params, response }) => {
       });
     });
 });
+
+
 //POST video and save to S3
-Route.post("videos", async ({ request, response }) => {
+Route.post("upload", async ({ request, response }) => {
+
   const video = new Video();
 
   //store video on S3
@@ -246,6 +253,76 @@ Route.post("videos", async ({ request, response }) => {
   });
 });
 
+
+//Ben - was working on getting POST to work on my machine. Just copied the old upload and pasted above for stakeholder meeting.
+
+// //NEW VERSION POST video and save to S3
+// Route.post("/videos", async ({ request, response }) => {
+//   console.log("got here POST")
+//   // const {title, description, user_id} = request.multipart.field;
+//   // const {title, description, user_id } = request.post();
+//   const videoData = { title:'y', description:'x', user_id:1, url: 't'};
+//   // let url = 'fakeUrl';
+
+//   //store video on S3
+//   // request.multipart.field((name, value) => {
+//   //   video[name] = value;
+//   // });
+//   // request.multipart.file("video", {}, async (file) => {
+//   //   const newFile = randomstring.generate() + ".mp4";
+//   //   await Drive.disk("s3").put(newFile, file.stream);
+//   //   url = Drive.disk("s3").getUrl(newFile);
+//   // });
+//   // await request.multipart.process();
+
+//   //store new video in database
+//   const video = await Video.findOrCreate(videoData);
+
+//   // const categories = [...JSON.parse(video["$attributes"].categories)];
+//   // delete video["$attributes"].categories;
+//   // const videoId = await Database.table("videos")
+//   //   .insert({
+//   //     ...video["$attributes"],
+//   //     created_at: Database.fn.now(),
+//   //     updated_at: Database.fn.now()
+//   //   })
+//   //   .returning("id")
+//   //   .catch(() => {
+//   //     response.status(500).json({
+//   //       status: 500,
+//   //       error: "An error occurred saving the video"
+//   //     });
+//   //     return;
+//   //   });
+
+//   // categories.forEach((category) => {
+//   //   Database.insert({
+//   //     video_id: video.id[0],
+//   //     cat_id: category.id,
+//   //     created_at: Database.fn.now(),
+//   //     updated_at: Database.fn.now()
+//   //   })
+//   //     .into("video_categories")
+//   //     .then(() => {
+//   //       response.status(200).json({
+//   //         status: 200
+//   //       });
+//   //       return;
+//   //     })
+//   //     .catch(() => {
+//   //       response.status(500).json({
+//   //         status: 500,
+//   //         error: "An error has occurred trying to save the tags."
+//   //       });
+//   //       return;
+//   //     });
+//   // });
+
+// });
+
+
+
+
 //GET all likes
 Route.get("videos/:id/likes", async ({ request, response, params }) => {
   const likes = await Database.table("video_likes").where(
@@ -288,6 +365,11 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
         error
       });
     });
+  //Now add to the transactions
+
+  const video = await Video.findByOrFail({id: videoId})
+
+  await Transaction.create({sender_id: body.user_id, receiver_id: video.user_id, amount: 10, type: 'like'})
 });
 //GET all transactions
 Route.get("transactions", async ({ params }) => {
