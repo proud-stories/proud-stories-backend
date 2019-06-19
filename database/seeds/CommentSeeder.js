@@ -20,32 +20,44 @@ class CommentSeeder {
       [{
         "video_id":1,
         "user_id": 1,
-        "comment": "Absolutely love this!"
+        "comment": "Absolutely love this!",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         "video_id":2,
         "user_id": 3,
-        "comment": "Ew"
+        "comment": "Ew",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         "video_id":2,
         "user_id": 2,
-        "comment": "Get a hair cut"
+        "comment": "Get a hair cut",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         "video_id":1,
         "user_id": 2,
-        "comment": "Just why"
+        "comment": "Just why",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         "video_id":2,
         "user_id": 1,
-        "comment": "Watching this in 2019"
+        "comment": "Seriously? Who uses constructors in 2019?",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         "video_id":1,
         "user_id": 3,
-        "comment": "Niiiiiiiice."
+        "comment": "Niiiiiiiice.",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       }]
     )
   }
