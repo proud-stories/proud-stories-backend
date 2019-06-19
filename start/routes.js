@@ -154,7 +154,7 @@ Route.post("videos/:video_id/comments", async ({request, params}) => {
 //GET replies by VIDEO ID with COMMENTS
 Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, params}) => {
   // const video = await Video.find(params.id)reply;
-  const replies = await Database.table('replies').where('comment_id', params.com_id)
+  const replies = await Database.table('replies').where('comment_id', params.comment_id)
   response.send(replies);
 })
 //POST video by VIDEO ID with COMMENTS
