@@ -17,7 +17,6 @@
 const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
-const Like = use("App/Models/Like");
 const Transaction = use("App/Models/Transaction");
 const Drive = use("Drive");
 const Database = use("Database");
