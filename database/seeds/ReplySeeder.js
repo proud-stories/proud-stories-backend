@@ -34,7 +34,7 @@ class ReplySeeder {
       {
         "comment_id":2,
         "user_id": 2,
-        "reply": "Get a hair cut",
+        "reply": "Terrible",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
