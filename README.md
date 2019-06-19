@@ -41,9 +41,11 @@ and similarly for the other seed files.
 
 The following endpoints are available.
 
-GET,POST ```/users/:id```
+GET,POST ```/users/```
 
-GET ```/users/:id/videos```
+GET ```/users/:id```
+
+GET, POST ```/users/:id/videos```
 
 POST ```/users/:id/feed```
 
@@ -51,7 +53,7 @@ GET ```/users/:id/balance```
 
 GET,POST ```/users/:id/transactions```
 
-GET,POST,PATCH,DELETE ```/videos/:id```
+GET,PATCH,DELETE ```/videos/:id```
 
 POST ```/videos/:id/likes```
 
