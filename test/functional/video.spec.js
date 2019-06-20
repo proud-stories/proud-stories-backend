@@ -79,6 +79,29 @@ test('Should PATCH video at /videos/:id', async ({ client, assert }) => {
   await fakeVideo.delete()
 })
 
+test('Should DELETE video at /videos/:id', async ({ client, assert }) => {
+  //make a fake video object in db
+  const fakeData = {
+    user_id: 1,
+    url: randomstring.generate(10),
+    title: randomstring.generate(10),
+    description: randomstring.generate(10)
+  }
+  const fakeVideo = await Video.create(fakeData)
+  const endpoint = '/videos/' + String(fakeVideo.id)
+
+  //test patch endpoint
+  const response = await client.delete(endpoint).end()
+
+  //assert reasonable response
+  response.assertStatus(200);
+  // response.assertJSONSubset(fakeData)
+
+  //assert video has been deleted
+  const deletedVideo = await Video.find(fakeVideo.id)
+  assert.equal(deletedVideo, null)
+})
+
 // test('Should POST a new video at /videos ', async ({ client }) => {
 //     //make POST request for a fakeVideo
 //     const fakeData = {
