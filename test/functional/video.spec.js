@@ -4,6 +4,7 @@ const randomstring = require('randomstring')
 const Helpers = use('Helpers')
 const User = use('App/Models/User')
 const Video = use('App/Models/Video')
+const _ = require('lodash')
 
 trait('Test/ApiClient')
 
@@ -45,6 +46,38 @@ test('Should GET video by id at /videos/:id (no aggregates)', async ({ client, a
   await fakeVideo.delete()
 })
 
+test('Should PATCH video at /videos/:id', async ({ client, assert }) => {
+  //make a fake video object in db
+  const fakeData = {
+    user_id: 1,
+    url: randomstring.generate(10),
+    title: randomstring.generate(10),
+    description: randomstring.generate(10)
+  }
+  const fakeVideo = await Video.create(fakeData)
+  const endpoint = '/videos/' + String(fakeVideo.id)
+  
+  //make data for a patch request
+  const title = randomstring.generate(10)
+  const description = randomstring.generate(10)
+  const patchData = { title, description }
+
+  //test patch endpoint
+  const response = await client.patch(endpoint).send(patchData).end()
+  
+  //assert we receive an appropriate response
+  response.assertStatus(200);
+  // response.assertJSONSubset(fakeData)
+
+  //find the fake video, assert its patched
+  const patchedVideo = await Video.find(fakeVideo.id)
+  assert.equal(_.isMatch(fakeVideo, fakeData), true)
+  assert.equal(_.isMatch(patchedVideo, fakeData), false)
+  assert.equal(_.isMatch(patchedVideo, patchData), true)
+
+  //remove fake video
+  await fakeVideo.delete()
+})
 
 // test('Should POST a new video at /videos ', async ({ client }) => {
 //     //make POST request for a fakeVideo

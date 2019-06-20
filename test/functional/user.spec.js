@@ -4,6 +4,7 @@ const randomstring = require('randomstring')
 const User = use('App/Models/User')
 
 
+
 trait('Test/ApiClient')
 
 test('Should GET users at /users', async ({ client, assert }) => {
