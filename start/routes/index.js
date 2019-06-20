@@ -183,14 +183,13 @@ Route.patch("videos/:id", async ({ params, request, response }) => {
 });
 //DELETE video by ID
 Route.delete("/videos/:id", async ({ params, response }) => {
+  response.implicitEnd = false
   const video = await Database.raw(
     "delete from videos CASCADE where id = ?",
     params.id
   )
-    .then(() => {
-      response.status(200).json({
-        status: 200
-      });
+    .then((video) => {
+      response.status(200).json(video);
     })
     .catch((error) => {
       response.status(500).json({
@@ -362,9 +361,12 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
       //the like was created, now add a transaction
       const video = await Video.findBy({id: videoId})
       await Transaction.create({sender_id: body.user_id, receiver_id: video.user_id, amount: 10, type: 'like'})
+
       response.status(200).json({
         status: 200
       });
+
+      //todo: use a .then to check if transaction successfully inserted.
     })
     .catch((error) => {
       response.status(500).json({
@@ -372,7 +374,7 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
         error
       });
     });
-
+    //handle the response
 });
 //GET all transactions
 Route.get("transactions", async ({ params }) => {
