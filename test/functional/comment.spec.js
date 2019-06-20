@@ -4,6 +4,7 @@ const randomstring = require('randomstring')
 const Helpers = use('Helpers')
 const User = use('App/Models/User')
 const Video = use('App/Models/Video')
+const Comment = use('App/Models/Comment')
 
 trait('Test/ApiClient')
 
