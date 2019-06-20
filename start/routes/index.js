@@ -237,17 +237,6 @@ Route.post("videos/:video_id/comments/:comment_id/replies", async ({request, res
   const myreply = await Reply.create(replyData);
   response.send(myreply);
 })
-// //GET videos by USER ID
-// Route.get("users/:id/videos", async ({
-//   params
-// }) => {
-//   let videos = await Database.raw(`SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id WHERE videos.user_id = ? GROUP BY videos.id ORDER BY videos.id DESC`, params.id)
-//   for (let i of videos.rows) {
-//     i.didLike = await Database.count('user_id').table('video_likes').where('user_id', i.user_id).where('video_id', i.id);
-//     i.didLike = i.didLike[0].count > 0 ? true : false;
-//   }
-//   return videos.rows;
-// });
 //PATCH video by ID
 Route.patch("videos/:id", async ({ params, request, response }) => {
   const body = request.post();
