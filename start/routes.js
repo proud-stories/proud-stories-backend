@@ -18,6 +18,8 @@ const Route = use("Route");
 const Video = use("App/Models/Video");
 const User = use("App/Models/User");
 const Transaction = use("App/Models/Transaction");
+const Comment = use("App/Models/Comment")
+const Reply = use("App/Models/Reply")
 const Drive = use("Drive");
 const Database = use("Database");
 const Env = use("Env");
@@ -58,7 +60,7 @@ Route.get("/videos", async ({ request, response }) => {
   response.send(videos);
 });
 //GET all videos filtered by category
-Route.post("/videos/filters", async ({ request, response }) => {
+Route.post("/video_filters", async ({ request, response }) => {
   const body = request.post();
   const videos = await Database.raw(
     `SELECT videos.id, videos.user_id, videos.url, videos.title, videos.description, videos.created_at, COUNT(videos.id) FROM videos LEFT JOIN video_likes ON videos.id = video_likes.video_id GROUP BY videos.id`
@@ -130,21 +132,38 @@ Route.get("/users/:user_id/videos", async ({ params }) => {
           ;`);
       return videos.rows;
 })
-//GET video by VIDEO ID with COMMENTS
+//GET comments by video id
 Route.get("videos/:id/comments", async ({params}) => {
-  const video = await Video.find(params.id);
-  const comments = await Database.table('comments').select().where('video_id', params.id)
+  // const video = await Video.find(params.id);
+  const comments = await Database.table('comments').where('video_id', params.id)
   return comments;
 })
+//POST comments with video id
+Route.post("videos/:video_id/comments", async ({request, params}) => {
+  const { comment, user_id } = request.post()
+  const { video_id } = params
+  const commentData = { comment, user_id, video_id}
+  const mycomment = await Comment.create(commentData)
+  // const comment = new Comment();
+  // comment.video_id = params.id;
+  // comment.user_id = body.user_id;
+  // comment.comment = body.comment;
+  // await comment.save();
+  response.send(mycomment);
+})
+//GET replies by VIDEO ID with COMMENTS
+Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, params}) => {
+  // const video = await Video.find(params.id)reply;
+  const replies = await Database.table('replies').where('comment_id', params.comment_id)
+  response.send(replies);
+})
 //POST video by VIDEO ID with COMMENTS
-Route.post("videos/:id/comments", async ({request, params}) => {
-  const body = request.body()
-  const comment = new Comment();
-  comment.video_id = params.id;
-  comment.user_id = body.user_id;
-  comment.text = body.comment;
-  await comment.save();
-  response.send(comment);
+Route.post("videos/:video_id/comments/:comment_id/replies", async ({request, response, params}) => {
+  const { reply } = request.post()
+  const { comment_id } = params;
+  const replyData = { reply, comment_id }
+  const myreply = await Reply.create(replyData);
+  response.send(myreply);
 })
 // //GET videos by USER ID
 // Route.get("users/:id/videos", async ({
@@ -198,36 +217,45 @@ Route.delete("/videos/:id", async ({ params, response }) => {
 //POST video and save to S3
 Route.post("upload", async ({ request, response }) => {
 
-  const video = new Video();
-
+  // const video = new Video();
+  console.log("FIRST OF ALL", request.body)
+  // console.log("AND THEN", request.multipart)
   //store video on S3
+  let videoData = {};
   request.multipart.field((name, value) => {
-    video[name] = value;
+    // video[name] = value;
+    videoData = JSON.parse(value);
   });
+
+
   request.multipart.file("video", {}, async (file) => {
     const newFile = randomstring.generate() + ".mp4";
     await Drive.disk("s3").put(newFile, file.stream);
-    video.url = Drive.disk("s3").getUrl(newFile);
+    videoData.url = Drive.disk("s3").getUrl(newFile);
   });
   await request.multipart.process();
 
-  const categories = [...JSON.parse(video["$attributes"].categories)];
-  delete video["$attributes"].categories;
-  const videoId = await Database.table("videos")
-    .insert({
-      ...video["$attributes"],
-      created_at: Database.fn.now(),
-      updated_at: Database.fn.now()
-    })
-    .returning("id")
-    .catch(() => {
-      response.status(500).json({
-        status: 500,
-        error: "An error occurred saving the video"
-      });
-      return;
-    });
+  const video = await Video.findOrCreate(value);
 
+  const video2 = await Video.findOrCreate(videoData);
+  // const categories = [...JSON.parse(video["$attributes"].categories)];
+  // delete video["$attributes"].categories;
+  // const videoId = await Database.table("videos")
+  //   .insert({
+  //     ...video["$attributes"],
+  //     created_at: Database.fn.now(),
+  //     updated_at: Database.fn.now()
+  //   })
+  //   .returning("id")
+  //   .catch(() => {
+  //     response.status(500).json({
+  //       status: 500,
+  //       error: "An error occurred saving the video"
+  //     });
+  //     return;
+  //   });
+
+  const categories = [];
   categories.forEach((category) => {
     Database.insert({
       video_id: videoId[0],

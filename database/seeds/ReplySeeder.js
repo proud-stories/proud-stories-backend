@@ -2,7 +2,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| CommentSeeder
+| ReplySeeder
 |--------------------------------------------------------------------------
 |
 | Make use of the Factory instance to seed database with dummy data or
@@ -14,48 +14,55 @@
 const Factory = use('Factory')
 const Database = use('Database')
 
-class CommentSeeder {
+class ReplySeeder {
   async run () {
-    const comments = await Database.table('comments').insert(
+    const replies = await Database.table('replies').insert(
       [{
-        "video_id":1,
-        "user_id": 1,
-        "comment": "Absolutely love this!",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
-        "user_id": 3,
-        "comment": "Ew",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
+        "comment_id":1,
         "user_id": 2,
-        "comment": "Get a hair cut",
+        "reply": "Yeah! So cool!",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
-        "video_id":1,
-        "user_id": 2,
-        "comment": "Just why",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
+        "comment_id":2,
         "user_id": 1,
-        "comment": "Seriously? Who uses constructors in 2019?",
+        "reply": "EW",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
-        "video_id":1,
+        "comment_id":2,
+        "user_id": 2,
+        "reply": "Terrible",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
         "user_id": 3,
-        "comment": "Niiiiiiiice.",
+        "reply": "smh",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":2,
+        "user_id": 1,
+        "reply": "Wow",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":1,
+        "user_id": 3,
+        "reply": "Niiiiiiiiiiiiiiiiiiiiiiiiiice.",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        "comment_id":1,
+        "user_id": 3,
+        "reply": ":)",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       }]
@@ -63,4 +70,4 @@ class CommentSeeder {
   }
 }
 
-module.exports = CommentSeeder
+module.exports = ReplySeeder
