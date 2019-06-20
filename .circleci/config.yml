@@ -1,9 +1,6 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - circleci
     docker:
       - image: circleci/node:11.10.1
     steps:
@@ -16,10 +13,4 @@ jobs:
           command: yarn
       - run: #start server
           name: start-server
-          command: ENV_SILENT=true node server.js &
-      - run: #run tests
-          name: run-tests
-          command: ENV_SILENT=true node ace test
-      - run: #kill server
-          name: kill-server
-          command: killall node
+          command: ENV_SILENT=true node server.js & ENV_SILENT=true node ace test && killall node
