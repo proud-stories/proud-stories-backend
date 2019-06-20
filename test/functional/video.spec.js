@@ -1,5 +1,5 @@
 'use strict'
-const { test, trait } = use('Test/Suite')('Video')
+const { test, trait } = use('Test/Suite')('Videos endpoints')
 const randomstring = require('randomstring')
 const Helpers = use('Helpers')
 const User = use('App/Models/User')
