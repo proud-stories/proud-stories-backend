@@ -36,9 +36,15 @@ then running
 
 and similarly for the other seed files.
 
-## Testing
+#### Testing
 
 Tests for each endpoint are written using the Adonis HTTP client and can be run with `adonis test`.
+
+#### Continuous Integration
+
+We used CircleCI for integration. To give CircleCI access to an Heroku Postgres resource one needs add a query string to Heroku's DATABASE_URL for the CircleCI workflow's DATABASE_URL.
+
+```jdbc:<DATABASE_URL>?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory```
 
 ## API
 
