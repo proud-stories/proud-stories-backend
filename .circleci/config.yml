@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    branches:
+      only:
+        - circleci
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout
+      - run: #install yarn
+          name: install-yarn
+          command: sudo apt install yarn
+      - run: #get dependencies
+          name: get-dependencies
+          command: yarn
+      - run: #start server
+          name: start-server
+          command: ENV_SILENT=true node server.js &
+      - run: #run tests
+          name: run-tests
+          command: ENV_SILENT=true node ace test
+      - run: #kill server
+          name: kill-server
+          command: killall node
