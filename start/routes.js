@@ -358,7 +358,7 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
     })
-    .then(() => {
+    .then(async () => {
       //the like was created, now add a transaction
       const video = await Video.findBy({id: videoId})
       await Transaction.create({sender_id: body.user_id, receiver_id: video.user_id, amount: 10, type: 'like'})
