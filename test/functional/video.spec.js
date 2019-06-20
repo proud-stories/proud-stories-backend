@@ -1,9 +1,14 @@
 'use strict'
+const { test, trait } = use('Test/Suite')('Video')
+const randomstring = require('randomstring')
+const Helpers = use('Helpers')
+const User = use('App/Models/User')
+const Video = use('App/Models/Video')
 
-const { test } = use('Test/Suite')('Video')
+trait('Test/ApiClient')
 
 test('Should GET all videos at /videos (no aggregates)', async ({ client, assert }) => {
-  //make GET request for a fakeUser
+  //make a fake video object in db
   const fakeData = {
     user_id: 1,
     url: randomstring.generate(10),
@@ -12,15 +17,33 @@ test('Should GET all videos at /videos (no aggregates)', async ({ client, assert
   }
   const fakeVideo = await Video.create(fakeData)
 
-//make GET request, assert the fake user is present
-const response = await client.get('/videos').end()
-response.assertStatus(200);
-response.assertJSONSubset([fakeData])
+  //make GET request, assert the fake video is present
+  const response = await client.get('/videos').end()
+  response.assertStatus(200);
+  response.assertJSONSubset([fakeData])
 
-//remove fake user using Adonis
-await fakeVideo.delete()
+  //remove fake video
+  await fakeVideo.delete()
 })
 
+test('Should GET video by id at /videos/:id (no aggregates)', async ({ client, assert }) => {
+  //make a fake video object in db
+  const fakeData = {
+    user_id: 1,
+    url: randomstring.generate(10),
+    title: randomstring.generate(10),
+    description: randomstring.generate(10)
+  }
+  const fakeVideo = await Video.create(fakeData)
+  const endpoint = '/videos/' + String(fakeVideo.id)
+  //make GET request, assert the fake video is present
+  const response = await client.get(endpoint).end()
+  response.assertStatus(200);
+  response.assertJSONSubset(fakeData)
+
+  //remove fake video
+  await fakeVideo.delete()
+})
 
 
 // test('Should POST a new video at /videos ', async ({ client }) => {
