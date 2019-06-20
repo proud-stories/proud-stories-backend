@@ -340,77 +340,6 @@ Route.post("upload", async ({ request, response }) => {
       });
   });
 });
-
-
-//Ben - was working on getting POST to work on my machine. Just copied the old upload and pasted above for stakeholder meeting.
-
-// //NEW VERSION POST video and save to S3
-// Route.post("/videos", async ({ request, response }) => {
-//   console.log("got here POST")
-//   // const {title, description, user_id} = request.multipart.field;
-//   // const {title, description, user_id } = request.post();
-//   const videoData = { title:'y', description:'x', user_id:1, url: 't'};
-//   // let url = 'fakeUrl';
-
-//   //store video on S3
-//   // request.multipart.field((name, value) => {
-//   //   video[name] = value;
-//   // });
-//   // request.multipart.file("video", {}, async (file) => {
-//   //   const newFile = randomstring.generate() + ".mp4";
-//   //   await Drive.disk("s3").put(newFile, file.stream);
-//   //   url = Drive.disk("s3").getUrl(newFile);
-//   // });
-//   // await request.multipart.process();
-
-//   //store new video in database
-//   const video = await Video.findOrCreate(videoData);
-
-//   // const categories = [...JSON.parse(video["$attributes"].categories)];
-//   // delete video["$attributes"].categories;
-//   // const videoId = await Database.table("videos")
-//   //   .insert({
-//   //     ...video["$attributes"],
-//   //     created_at: Database.fn.now(),
-//   //     updated_at: Database.fn.now()
-//   //   })
-//   //   .returning("id")
-//   //   .catch(() => {
-//   //     response.status(500).json({
-//   //       status: 500,
-//   //       error: "An error occurred saving the video"
-//   //     });
-//   //     return;
-//   //   });
-
-//   // categories.forEach((category) => {
-//   //   Database.insert({
-//   //     video_id: video.id[0],
-//   //     cat_id: category.id,
-//   //     created_at: Database.fn.now(),
-//   //     updated_at: Database.fn.now()
-//   //   })
-//   //     .into("video_categories")
-//   //     .then(() => {
-//   //       response.status(200).json({
-//   //         status: 200
-//   //       });
-//   //       return;
-//   //     })
-//   //     .catch(() => {
-//   //       response.status(500).json({
-//   //         status: 500,
-//   //         error: "An error has occurred trying to save the tags."
-//   //       });
-//   //       return;
-//   //     });
-//   // });
-
-// });
-
-
-
-
 //GET all likes
 Route.get("videos/:id/likes", async ({ request, response, params }) => {
   const likes = await Database.table("video_likes").where(
@@ -459,7 +388,6 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
         error
       });
     });
-    //handle the response
 });
 //GET all transactions
 Route.get("transactions", async ({ params }) => {
