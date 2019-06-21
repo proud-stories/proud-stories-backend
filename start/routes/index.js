@@ -225,7 +225,8 @@ Route.post("videos/:video_id/comments", async ({request, params}) => {
   const user = await User.findBy('auth_id', auth_id);
   const user_id = user.id;
   const { video_id } = params
-  const commentData = { comment, user_id, video_id }
+  const commentData = { comment, user_id, video_id 
+  }
   const mycomment = await Comment.create(commentData)
   response.send(mycomment);
 })
