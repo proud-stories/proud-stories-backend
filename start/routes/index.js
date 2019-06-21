@@ -31,7 +31,7 @@ const randomstring = require("randomstring");
 //Users, Videos, Likes, Transactions, Stripe
 
 //GET all users
-Route.get("/users", async ({ response }) => {
+Route.get("users", async ({ response }) => {
   const users = await User.all();
   response.send(users);
 });
@@ -225,8 +225,7 @@ Route.post("videos/:video_id/comments", async ({request, params}) => {
   const user = await User.findBy('auth_id', auth_id);
   const user_id = user.id;
   const { video_id } = params
-  const commentData = { comment, user_id, video_id 
-  }
+  const commentData = { comment, user_id, video_id }
   const mycomment = await Comment.create(commentData)
   response.send(mycomment);
 })
@@ -347,10 +346,11 @@ Route.get("videos/:id/likes", async ({ request, response, params }) => {
 });
 //POST likes, only one per day allowed
 Route.post("videos/:id/likes", async ({ request, response, params }) => {
-  const { auth_id }} = request.post();
+  const { auth_id } = request.post();
   const user = await User.findBy('auth_id', auth_id);
   const userId = user.id;
   const videoId = params.id;
+  const video = await Video.find(videoId)
   const likes = await Database.raw(
     `SELECT users.id, COUNT(users.id) FROM users LEFT JOIN video_likes ON users.id = video_likes.user_id WHERE user_id = ? AND video_likes.created_at::TIMESTAMP::DATE = current_date GROUP BY users.id`,
     userId
@@ -363,17 +363,16 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
     });
     return;
   }
-  Database.table("video_likes")
+  await Database.table("video_likes")
     .insert({
       video_id: videoId,
       user_id: userId,
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
     })
-    .then(async () => {
+    .then( () => {
       //the like was created, now add a transaction
-      const video = await Video.findBy({id: videoId})
-      await Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
+      Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
 
       response.status(200).json({
         status: 200
