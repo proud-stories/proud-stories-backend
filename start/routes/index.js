@@ -83,7 +83,7 @@ Route.get("videos/:id", async ({ params }) => {
   const video = await Video.find(params.id);
   const user = await User.find(video.user_id)
   const { url, title, description, created_at, updated_at } = video
-  return { url, title, description, created_at, updated_at, username: user.name }
+  return { url, title, description, created_at, updated_at }
 });
 //GET all videos uploaded by a user
 Route.get("/users/:id/videos", async ({ params }) => {
