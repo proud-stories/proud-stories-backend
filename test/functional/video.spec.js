@@ -30,12 +30,11 @@ test('Should GET all videos at /videos (no aggregates)', async ({ client, assert
 test('Should GET video by id at /videos/:id (no aggregates)', async ({ client, assert }) => {
   //make a fake video object in db
   const fakeData = {
-    user_id: 1,
     url: randomstring.generate(10),
     title: randomstring.generate(10),
     description: randomstring.generate(10)
   }
-  const fakeVideo = await Video.create(fakeData)
+  const fakeVideo = await Video.create({...fakeData, user_id:1 })
   const endpoint = '/videos/' + String(fakeVideo.id)
   //make GET request, assert the fake video is present
   const response = await client.get(endpoint).end()
