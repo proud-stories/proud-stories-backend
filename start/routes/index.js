@@ -31,10 +31,11 @@ const randomstring = require("randomstring");
 //Users, Videos, Likes, Transactions, Stripe
 
 //GET all users
-Route.get("users", async ({ response }) => {
-  const users = await User.all();
-  response.send(users);
-});
+Route.get('users', 'UserController.index')
+// Route.get("users", async ({ response }) => {
+//   // const users = await User.all();
+//   // response.send(users);
+// });
 //GET user by ID
 Route.get("users/:id", async ({ params }) => {
   const user = await User.findBy('auth_id', params.id);
@@ -42,8 +43,8 @@ Route.get("users/:id", async ({ params }) => {
 });
 //POST user
 Route.post("users", async ({ request, response }) => {
-  const { name, auth_id } = request.post()
-  const user = await User.create({ name, auth_id })
+  const { name, auth_id, picture } = request.post()
+  const user = await User.create({ name, auth_id, picture })
   response.send(user);
 });
 //GET all videos from videos database

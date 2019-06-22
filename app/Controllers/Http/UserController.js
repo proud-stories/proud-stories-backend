@@ -1,17 +1,17 @@
 'use strict'
-const User = use('App/Model/User')
-const Database = use('Database')
-const randomstring = require("randomstring");
+const User = use('App/Models/User')
 
 class UserController {
-    index({ request, response, params }) {
-        const users = yield User.all();
-        yield response.send(users); 
+    async index({ request, response }) {
+        const users = await User.all();
+        response.status(200).send(users)
+        // response.body = 'hello'
+        // return response
     }
 
     store({ request, response }) {
-        const user = yield User.create(request.body)
-        yield repsonse.send(user)
+        const user = User.create(request.body)
+        reponse.send(user)
     }
 }
 
