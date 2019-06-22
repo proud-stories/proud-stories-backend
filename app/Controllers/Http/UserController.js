@@ -2,16 +2,24 @@
 const User = use('App/Models/User')
 
 class UserController {
-    async index({ request, response }) {
+    async index({ response }) {
         const users = await User.all();
         response.status(200).send(users)
-        // response.body = 'hello'
-        // return response
     }
 
-    store({ request, response }) {
-        const user = User.create(request.body)
-        reponse.send(user)
+    async find({ response, params }) {
+        const user = await User.findBy('auth_id', params.id);
+        response.status(200).send(user)
+    }
+
+    async store({ response }) {
+        const user = await User.create(request.body)
+        response.status(200).send(user)
+    }
+
+    async videos({ response, params }) {
+        const videos = await User.allVideos(params.id)
+        response.status(200).send(videos)
     }
 }
 

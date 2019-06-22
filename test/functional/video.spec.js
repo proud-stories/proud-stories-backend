@@ -21,7 +21,7 @@ test('Should GET all videos at /videos (no aggregates)', async ({ client, assert
   //make GET request, assert the fake video is present
   const response = await client.get('/videos').end()
   response.assertStatus(200);
-  response.assertJSONSubset([fakeData])
+  response.assertJSONSubset([{ url: fakeData.url, title: fakeData.title, description: fakeData.description }])
 
   //remove fake video
   await fakeVideo.delete()

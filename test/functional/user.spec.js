@@ -56,8 +56,8 @@ test('Should GET all a users videos at /users/:id/videos ', async ({ client }) =
   
   //make GET request, assert the fake user is present
   const response = await client.get('/users').end()
-  // response.assertStatus(200);
-  // response.assertJSONSubset([fakeData])
+  response.assertStatus(200);
+  response.assertJSONSubset([fakeData])
 
   //remove fake user using Adonis
   await fakeUser.delete()

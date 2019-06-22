@@ -30,28 +30,16 @@ const randomstring = require("randomstring");
 //Organization of endpoints in this file:
 //Users, Videos, Likes, Transactions, Stripe
 
-//GET all users
-Route.get('users', 'UserController.index')
-// Route.get("users", async ({ response }) => {
-//   // const users = await User.all();
-//   // response.send(users);
-// });
-//GET user by ID
-Route.get("users/:id", async ({ params }) => {
-  const user = await User.findBy('auth_id', params.id);
-  return user;
-});
-//POST user
+
+Route.get('users', 'UserController.index') //GET all users
+Route.get('users/:id', 'UserController.find') //GET user by ID
+// Route.post('users', 'UserController.store') //POST user
 Route.post("users", async ({ request, response }) => {
   const { name, auth_id, picture } = request.post()
   const user = await User.create({ name, auth_id, picture })
   response.send(user);
 });
-//GET all videos from videos database
-Route.get("/videos", async ({ request, response }) => {
-  const videos = await Database.table("videos");
-  response.send(videos);
-});
+Route.get('videos', 'VideoController.index')//GET all videos
 //GET all videos filtered by category
 Route.post("/video_filters", async ({ request, response }) => {
   const body = request.post();
@@ -79,13 +67,7 @@ Route.post("/video_filters", async ({ request, response }) => {
   });
   response.send(videos.rows);
 });
-//GET video by VIDEO ID
-Route.get("videos/:id", async ({ params }) => {
-  const video = await Video.find(params.id);
-  const user = await User.find(video.user_id)
-  const { url, title, description, created_at, updated_at } = video
-  return { url, title, description, created_at, updated_at }
-});
+Route.get('videos/:id', 'VideoController.select') //GET video by VIDEO ID
 //GET all videos uploaded by a user
 Route.get("/users/:id/videos", async ({ params }) => {
   const user = await User.findBy('auth_id', params.id);
