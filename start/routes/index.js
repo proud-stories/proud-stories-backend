@@ -68,74 +68,7 @@ Route.post("/video_filters", async ({ request, response }) => {
   response.send(videos.rows);
 });
 Route.get('videos/:id', 'VideoController.select') //GET video by VIDEO ID
-//GET all videos uploaded by a user
-Route.get("/users/:id/videos", async ({ params }) => {
-  const user = await User.findBy('auth_id', params.id);
-  const userId = user.id;
-  const videos = await Database.raw(
-    `SELECT * FROM
-      (
-      SELECT
-          all_videos.id AS video_id,
-          all_videos.title,
-          all_videos.description,
-          all_videos.likes,
-          all_videos.user_id,
-          CASE WHEN user_likes.user_likes IS NULL THEN false ELSE true END AS liked,
-          all_videos.url
-      FROM
-          (
-          SELECT
-              videos.id,
-              videos.title,
-              videos.description,
-              videos.url,
-              videos.user_id,
-              CASE WHEN NOT EXISTS (
-                  SELECT * FROM
-                      video_likes
-                  WHERE
-                      videos.id = video_likes.video_id
-              ) THEN 0 ELSE COUNT(videos.id) END AS likes
-          FROM
-              videos
-          LEFT JOIN
-              video_likes
-          ON
-              videos.id = video_likes.video_id
-          GROUP BY
-              videos.id)
-          AS
-              all_videos
-          LEFT JOIN 
-              (
-              SELECT
-                  videos.id,
-                  videos.title,
-                  COUNT(videos.id) AS user_likes
-              FROM
-                  videos
-              JOIN
-                  video_likes
-              ON
-                  videos.id = video_likes.video_id
-              WHERE
-                  video_likes.user_id = 1
-              GROUP BY
-                  videos.id
-              )
-              AS
-                  user_likes
-          ON
-              all_videos.id = user_likes.id
-          ORDER BY
-              all_videos.id
-      ) AS all_vids
-    WHERE
-      all_vids.user_id = ${userId}
-    ;`)
-  return videos.rows
-})
+Route.get('users/:id/videos', 'UserController.my_videos') //GET all videos uploaded by a user
 //GET videos with AGGREGATES total likes and USER likes
 Route.get("/users/:id/feed", async ({ params }) => {
   const user = await User.findBy('auth_id', params.id);
