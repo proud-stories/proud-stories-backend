@@ -49,13 +49,29 @@ test('Should GET user by id at /users/:id', async ({ client }) => {
     await fakeUser.delete()  
 })
 
-test('Should GET all a users videos at /users/:id/videos ', async ({ client }) => {
+test('Should GET all of a users videos at /users/:id/videos ', async ({ client }) => {
   //insert a fake user using Adonis
   const fakeData = {name: randomstring.generate(30)}
   const fakeUser = await User.create(fakeData)
   
   //make GET request, assert the fake user is present
-  const response = await client.get('/users').end()
+  const endpoint = '/users/' + String(fakeUser.auth_id) + '/videos';
+  const response = await client.get(endpoint).end()
+  response.assertStatus(200);
+  response.assertJSONSubset([fakeData])
+
+  //remove fake user using Adonis
+  await fakeUser.delete()
+})
+
+test('Should GET a users videofeed at /users/:id/feed ', async ({ client }) => {
+  //insert a fake user using Adonis
+  const fakeData = {name: randomstring.generate(30)}
+  const fakeUser = await User.create(fakeData)
+  
+  //make GET request, assert the fake user is present
+  const endpoint = '/users/' + String(fakeUser.auth_id) + '/feed';
+  const response = await client.get(endpoint).end()
   response.assertStatus(200);
   response.assertJSONSubset([fakeData])
 

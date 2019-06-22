@@ -9,6 +9,11 @@ const Model = use('Model')
 
 class User extends Model {
     
+    async allVideos (id) {
+        const videos = await Database.raw(videosAgg(id))
+        return videos
+    }
+
     async myVideos (id) {
         const videos = await Database.raw(videosAggByUser(id))
         return videos
