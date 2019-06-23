@@ -69,7 +69,6 @@ Route.post("/video_filters", async ({ request, response }) => {
 });
 Route.get('videos/:id', 'VideoController.select') //GET video by VIDEO ID
 Route.get('users/:id/videos', 'UserController.my_videos') //GET all videos uploaded by a user
-//GET videos with AGGREGATES total likes and USER likes
 Route.get('users/:id/feed', 'UserController.video_feed')
 //GET comments by video id
 Route.get("videos/:id/comments", async ({params}) => {

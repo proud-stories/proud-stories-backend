@@ -1,7 +1,7 @@
 'use strict'
 // import '../Middleware/queries.js'
 
-const { videosAggByUser } = require('../Middleware/queries')
+const { videosAgg, videosAggByUser } = require('../Middleware/queries')
 const Database = use('Database')
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */

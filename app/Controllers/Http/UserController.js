@@ -19,13 +19,14 @@ class UserController {
 
     async video_feed({ response, params }) {
         const user = await User.findBy('auth_id', params.id)
-        const videos = user.allVideos(user.id)
-        response.status(200).send(videos)
+        const videos = await user.allVideos(user.id)
+        response.status(200).send(videos.rows)
     }
 
     async my_videos({ response, params }) {
         const user = await User.findBy('auth_id', params.id)
-        const videos = user.myVideos(user.id)
+        // console.log(user.id)
+        const videos = await user.myVideos(user.id)
         response.status(200).send(videos)
     }
 }
