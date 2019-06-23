@@ -8,11 +8,11 @@ This app was created in June 2019 by Ania Nakayama, Ben Dyer and Konstantin Schl
 
 ## Dependencies
 
-We use AdonisJS (ExpressJS and KnexJS) with a PostgreSQL database. Videos are stored as links to our Amazon S3 bucket, and we also have an endpoint connecting to Stripe for payment.
+We use AdonisJs with a PostgreSQL database. Videos are stored as links to our AWS S3 bucket, and we also use Stripe for payment and Auth0 for login/authorization.
 
 ## Setup
 
-Setup a bucket on Amazon S3 and a Stripe account. After cloning the repository, install dependencies by running `yarn` and obtain an Adonis APP_KEY by [...]. Finally, create a PostgreSQL database and enter all environment variables as in the `.env.example` file.
+Setup an S3 bucket on AWS and a Stripe account. After cloning the repository, install dependencies by running `yarn` and obtain an Adonis APP_KEY by [...]. Finally, create a PostgreSQL database and enter all environment variables as in the `.env.example` file.
 
 To make migrations use
 
@@ -36,9 +36,15 @@ then running
 
 and similarly for the other seed files.
 
-## Testing
+#### Testing
 
 Tests for each endpoint are written using the Adonis HTTP client and can be run with `adonis test`.
+
+#### Continuous Integration
+
+We used CircleCI for integration. To give CircleCI access to an Heroku Postgres resource one needs add a query string to Heroku's DATABASE_URL for the CircleCI workflow's DATABASE_URL.
+
+```jdbc:<DATABASE_URL>?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory```
 
 ## API
 
