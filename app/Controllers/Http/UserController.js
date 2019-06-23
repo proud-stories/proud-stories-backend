@@ -25,7 +25,6 @@ class UserController {
 
     async my_videos({ response, params }) {
         const user = await User.findBy('auth_id', params.id)
-        // console.log(user.id)
         const videos = await user.myVideos(user.id)
         response.status(200).send(videos)
     }

@@ -81,5 +81,6 @@ test('Should GET a users videofeed at /users/:id/feed ', async ({ client }) => {
   response.assertJSONSubset([videoResponse])
 
   //remove fake user using Adonis
+  await video.delete()
   await fakeUser.delete()
 })

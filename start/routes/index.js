@@ -267,7 +267,7 @@ Route.post("transactions", async ({ request, response }) => {
     receiver_id: video.user_id,
     amount, type
   }
-  const transaction = Transaction.create(transactionData);
+  const transaction = await Transaction.create(transactionData);
   response.send({ amount, type });
 });
 //GET balance by USER
