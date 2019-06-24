@@ -54,9 +54,11 @@ GET,POST ```/users/```
 
 GET ```/users/:id```
 
-GET, POST ```/users/:id/videos```
+GET ```/users/:id/videos```
 
-POST ```/users/:id/feed```
+POST ```/upload```
+
+GET ```/users/:id/feed```
 
 GET ```/users/:id/balance```
 
