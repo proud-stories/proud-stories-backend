@@ -62,7 +62,9 @@ GET ```/users/:id/feed```
 
 GET ```/users/:id/balance```
 
-GET,POST ```/users/:id/transactions```
+GET ```/users/:id/transactions```
+
+POST ```/transactions```
 
 GET,PATCH,DELETE ```/videos/:id```
 
