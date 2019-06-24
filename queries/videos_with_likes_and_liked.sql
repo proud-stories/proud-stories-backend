@@ -3,6 +3,7 @@ SELECT
     all_videos.title,
     all_videos.description,
     all_videos.likes,
+    all_videos.user_id,
     CASE WHEN user_likes.user_likes IS NULL THEN false ELSE true END AS liked,
     all_videos.url
 FROM
