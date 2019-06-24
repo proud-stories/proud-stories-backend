@@ -248,11 +248,8 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
     })
     .then( () => {
       //the like was created, now add a transaction
-      Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
-
-      response.status(200).json({
-        status: 200
-      });
+      const transaction = await Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
+      response.status(200).json({ amount: transaction.amount, type: transaction.type });
 
       //todo: use a ".then()" to check if transaction successfully inserted.
     })
