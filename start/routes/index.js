@@ -422,9 +422,9 @@ Route.get("users/:id/transactions", async ({ params }) => {
   return transactions;
 });
 //POST transactions
-Route.post("users/:id/transactions", async ({ request, response }) => {
+Route.post("transactions", async ({ request, response }) => {
   const { auth_id, video_id, amount, type } = request.post();
-  const user = await User.findBy('auth_id', params.id);
+  const user = await User.findBy('auth_id', auth_id);
   const video = await Video.find(video_id)
   const transactionData = {
     sender_id: user.id,
