@@ -280,15 +280,26 @@ Route.get("users/:id/transactions", async ({ params }) => {
 //POST transactions
 Route.post("transactions", async ({ request, response }) => {
   const { auth_id, video_id, amount, type } = request.post();
-  const user = await User.findBy('auth_id', auth_id);
-  const video = await Video.find(video_id)
-  const transactionData = {
-    sender_id: user.id,
-    receiver_id: video.user_id,
-    amount, type
+  if (type === 'like') {
+    const user = await User.findBy('auth_id', auth_id);
+    const video = await Video.find(video_id)
+    const transactionData = {
+      sender_id: user.id,
+      receiver_id: video.user_id,
+      amount, type
+    }
+    const transaction = await Transaction.create(transactionData);
+    response.send({ amount, type });
   }
-  const transaction = await Transaction.create(transactionData);
-  response.send({ amount, type });
+  else if (type === 'deposit') {
+    const user = await User.findBy('auth_id', auth_id)
+    const transactionData = {
+      sender_id: user.id,
+      receiver_id: user.id,
+      amount, type
+    }
+    response.send({ amount, type })
+  }
 });
 //GET balance by USER
 Route.get("users/:id/balance", async ({ params }) => {
