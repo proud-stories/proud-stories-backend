@@ -1,6 +1,4 @@
-[![CircleCI](https://circleci.com/gh/proud-stories/proud-stories-backend.svg?style=svg)](https://circleci.com/gh/proud-stories/proud-stories-backend)
-
-# Server for the proud stories mobile app
+# Server for the proud stories mobile app   [![CircleCI](https://circleci.com/gh/proud-stories/proud-stories-backend.svg?style=svg)](https://circleci.com/gh/proud-stories/proud-stories-backend)
 
 This repo contains the backend API for the proud stories [mobile app](https://github.com/proud-stories/proud-stories-backend).
 
