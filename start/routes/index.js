@@ -93,6 +93,8 @@ Route.get('users/:id/feed', 'UserController.video_feed')
 //GET comments by video id
 Route.get("videos/:id/comments", async ({params}) => {
   const comments = await Database.table('comments').where('video_id', params.id)
+  const comments = await Database.raw("SELECT vid_coms.comment,vid_coms.created_at,vid_coms.updated_at,vid_coms.video_id,users.name FROM (SELECT * FROM comments WHERE comments.video_id = " + params.id + ") AS vid_coms JOIN users ON vid_coms.user_id = users.id")
+  // SELECT vid_coms.comment,vid_coms.created_at,vid_coms.updated_at,vid_coms.video_id,users.name FROM (SELECT * FROM comments WHERE comments.video_id = 1) AS vid_coms JOIN users ON vid_coms.user_id = users.id
   return comments;
 })
 //POST comments with video id
