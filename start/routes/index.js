@@ -298,6 +298,7 @@ Route.post("transactions", async ({ request, response }) => {
       receiver_id: user.id,
       amount, type
     }
+    const transaction = await Transaction.create(transactionData);
     response.send({ amount, type })
   }
 });
