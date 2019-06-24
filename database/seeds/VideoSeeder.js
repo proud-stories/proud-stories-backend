@@ -20,13 +20,17 @@ class VideoSeeder {
       url: 'https://proud-videos.s3-ap-northeast-1.amazonaws.com/video.mp4',
       title: 'Uganda Pineapples',
       description: 'Uganda pineapples are very special.',
-      user_id: 1
+      user_id: 1,
+      "created_at": Database.fn.now(),
+      "updated_at": Database.fn.now()
     },
     {
       title: "Tom Waits",
       description: "Tom Waits sings a beautiful song.",
       url: "https://proud-videos.s3-ap-northeast-1.amazonaws.com/waits.mp4",
-      user_id: 2
+      user_id: 2,
+      "created_at": Database.fn.now(),
+      "updated_at": Database.fn.now()
     }])
   }
 }

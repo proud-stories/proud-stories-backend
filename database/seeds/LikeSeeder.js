@@ -20,14 +20,20 @@ class LikeSeeder {
       [{
         video_id:1,
         user_id:2,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         video_id:2,
-        user_id:2
+        user_id:2,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         video_id: 1,
-        user_id: 3
+        user_id: 3,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
         video_id: 1,

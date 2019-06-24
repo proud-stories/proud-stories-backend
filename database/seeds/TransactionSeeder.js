@@ -18,22 +18,34 @@ class TransactionSeeder {
   async run () {
     const transactions = await Database.table('transactions').insert(
       [{
-        sender_id: 1, receiver_id: 2, amount: 10, type: 'like'
+        sender_id: 1, receiver_id: 2, amount: 10, type: 'like',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
-        sender_id: 1, receiver_id: 3, amount: 10, type: 'like'
+        sender_id: 1, receiver_id: 3, amount: 10, type: 'like',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
-        sender_id: 3, receiver_id: 1, amount: 10, type: 'like'
+        sender_id: 3, receiver_id: 1, amount: 10, type: 'like',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
-        sender_id: 2, receiver_id: 3, amount: 10, type: 'like'
+        sender_id: 2, receiver_id: 3, amount: 10, type: 'like',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
-        sender_id: 1, receiver_id: 2, amount: 10, type: 'like'
+        sender_id: 1, receiver_id: 2, amount: 10, type: 'like',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       },
       {
-        sender_id: 1, receiver_id: 1, amount: 500, type: 'deposit'
+        sender_id: 1, receiver_id: 1, amount: 500, type: 'deposit',
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
       }])
   }
 }
