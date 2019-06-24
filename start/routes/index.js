@@ -50,27 +50,16 @@ const checkJwt = jwt({
 //Organization of endpoints in this file:
 //Users, Videos, Likes, Transactions, Stripe
 
-//GET all users
-Route.get("users", async ({ response }) => {
-  const users = await User.all();
-  response.send(users);
-});
-//GET user by ID
-Route.get("users/:id", async ({ params }) => {
-  const user = await User.findBy('auth_id', params.id);
-  return user;
-});
-//POST user
+
+Route.get('users', 'UserController.index') //GET all users
+Route.get('users/:id', 'UserController.find') //GET user by ID
+// Route.post('users', 'UserController.store') //POST user
 Route.post("users", async ({ request, response }) => {
-  const { name, auth_id } = request.post()
-  const user = await User.create({ name, auth_id })
+  const { name, auth_id, picture } = request.post()
+  const user = await User.create({ name, auth_id, picture })
   response.send(user);
 });
-//GET all videos from videos database
-Route.get("/videos", async ({ request, response }) => {
-  const videos = await Database.table("videos");
-  response.send(videos);
-});
+Route.get('videos', 'VideoController.index')//GET all videos
 //GET all videos filtered by category
 Route.post("/video_filters", async ({ request, response }) => {
   const body = request.post();
@@ -98,142 +87,9 @@ Route.post("/video_filters", async ({ request, response }) => {
   });
   response.send(videos.rows);
 });
-//GET video by VIDEO ID
-Route.get("videos/:id", async ({ params }) => {
-  const video = await Video.find(params.id);
-  const user = await User.find(video.user_id)
-  const { url, title, description, created_at, updated_at } = video
-  return { url, title, description, created_at, updated_at }
-});
-//GET all videos uploaded by a user
-Route.get("/users/:id/videos", async ({ params }) => {
-  const user = await User.findBy('auth_id', params.id);
-  const userId = user.id;
-  const videos = await Database.raw(
-    `SELECT * FROM
-      (
-      SELECT
-          all_videos.id AS video_id,
-          all_videos.title,
-          all_videos.description,
-          all_videos.likes,
-          all_videos.user_id,
-          CASE WHEN user_likes.user_likes IS NULL THEN false ELSE true END AS liked,
-          all_videos.url
-      FROM
-          (
-          SELECT
-              videos.id,
-              videos.title,
-              videos.description,
-              videos.url,
-              videos.user_id,
-              CASE WHEN NOT EXISTS (
-                  SELECT * FROM
-                      video_likes
-                  WHERE
-                      videos.id = video_likes.video_id
-              ) THEN 0 ELSE COUNT(videos.id) END AS likes
-          FROM
-              videos
-          LEFT JOIN
-              video_likes
-          ON
-              videos.id = video_likes.video_id
-          GROUP BY
-              videos.id)
-          AS
-              all_videos
-          LEFT JOIN 
-              (
-              SELECT
-                  videos.id,
-                  videos.title,
-                  COUNT(videos.id) AS user_likes
-              FROM
-                  videos
-              JOIN
-                  video_likes
-              ON
-                  videos.id = video_likes.video_id
-              WHERE
-                  video_likes.user_id = 1
-              GROUP BY
-                  videos.id
-              )
-              AS
-                  user_likes
-          ON
-              all_videos.id = user_likes.id
-          ORDER BY
-              all_videos.id
-      ) AS all_vids
-    WHERE
-      all_vids.user_id = ${userId}
-    ;`)
-  return videos.rows
-})
-//GET videos with AGGREGATES total likes and USER likes
-Route.get("/users/:id/feed", async ({ params }) => {
-  const user = await User.findBy('auth_id', params.id);
-  const userId = user.id;
-  const videos = await Database.raw(
-    `SELECT
-      all_videos.id AS video_id,
-      all_videos.title,
-      all_videos.description,
-      all_videos.likes,
-      CASE WHEN user_likes.user_likes IS NULL THEN false ELSE true END AS liked,
-      all_videos.url
-    FROM
-      (
-      SELECT
-          videos.id,
-          videos.title,
-          videos.description,
-          videos.url,
-          CASE WHEN NOT EXISTS (
-              SELECT * FROM
-                  video_likes
-              WHERE
-                  videos.id = video_likes.video_id
-          ) THEN 0 ELSE COUNT(videos.id) END AS likes
-      FROM
-          videos
-      LEFT JOIN
-          video_likes
-      ON
-          videos.id = video_likes.video_id
-      GROUP BY
-          videos.id)
-      AS
-          all_videos
-      LEFT JOIN 
-          (
-          SELECT
-              videos.id,
-              videos.title,
-              COUNT(videos.id) AS user_likes
-          FROM
-              videos
-          JOIN
-              video_likes
-          ON
-              videos.id = video_likes.video_id
-          WHERE
-              video_likes.user_id = ${userId}
-          GROUP BY
-              videos.id
-          )
-          AS
-              user_likes
-      ON
-          all_videos.id = user_likes.id
-      ORDER BY
-          all_videos.id
-;`);
-      return videos.rows;
-})
+Route.get('videos/:id', 'VideoController.select') //GET video by VIDEO ID
+Route.get('users/:id/videos', 'UserController.my_videos') //GET all videos uploaded by a user
+Route.get('users/:id/feed', 'UserController.video_feed')
 //GET comments by video id
 Route.get("videos/:id/comments", async ({params}) => {
   const comments = await Database.table('comments').where('video_id', params.id)
@@ -431,7 +287,7 @@ Route.post("transactions", async ({ request, response }) => {
     receiver_id: video.user_id,
     amount, type
   }
-  const transaction = Transaction.create(transactionData);
+  const transaction = await Transaction.create(transactionData);
   response.send({ amount, type });
 });
 //GET balance by USER
