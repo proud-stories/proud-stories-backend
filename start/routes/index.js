@@ -26,6 +26,26 @@ const Env = use("Env");
 const stripe_secret_key = Env.get("STRIPE_SECRET_KEY");
 const stripe = require("stripe")(stripe_secret_key);
 const randomstring = require("randomstring");
+const jwt = require('express-jwt');
+const jwtAuthz = require('express-jwt-authz');
+const jwksRsa = require('jwks-rsa');
+
+const checkJwt = jwt({
+  // Dynamically provide a signing key
+  // based on the kid in the header and 
+  // the signing keys provided by the JWKS endpoint.
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://dev-me693vpa.eu.auth0.com/.well-known/jwks.json`
+  }),
+
+  // Validate the audience and the issuer.
+  audience: 'https://proud-stories.herokuapp.com/',
+  issuer: `https://dev-me693vpa.eu.auth0.com/`,
+  algorithms: ['RS256']
+});
 
 //Organization of endpoints in this file:
 //Users, Videos, Likes, Transactions, Stripe
@@ -404,7 +424,7 @@ Route.get("users/:id/transactions", async ({ params }) => {
 //POST transactions
 Route.post("transactions", async ({ request, response }) => {
   const { auth_id, video_id, amount, type } = request.post();
-  const user = await User.findBy('auth_id', params.id);
+  const user = await User.findBy('auth_id', auth_id);
   const video = await Video.find(video_id)
   const transactionData = {
     sender_id: user.id,
