@@ -32,14 +32,11 @@ test('Should GET comments for a video at /videos/:id/comments', async ({ client,
   const endpoint = "/videos/" + String(fakeVideo.id) + "/comments";
   const response = await client.get(endpoint).end()
   response.assertStatus(200);
-  // console.log(response)
-  console.log(response.video_id, response.comment)
-  console.log(response[`$attributes`])
   response.assertJSONSubset([{comment: "First"}])
 
+  await fakeComment.delete()
   await fakeVideo.delete()
   await fakeUser.delete()
-  await fakeComment.delete()
 })
 
 test('Should POST a comment to a video at /videos/:video_id/comments', async ({ client, assert }) => {
