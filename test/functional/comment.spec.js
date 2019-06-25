@@ -5,6 +5,7 @@ const Helpers = use('Helpers')
 const User = use('App/Models/User')
 const Video = use('App/Models/Video')
 const Comment = use('App/Models/Comment')
+const _ = require('lodash')
 
 trait('Test/ApiClient')
 
@@ -25,16 +26,17 @@ test('Should GET comments for a video at /videos/:id/comments', async ({ client,
     "user_id": fakeUser.id,
     "comment": "First",
   }
+  
   const fakeComment = await Comment.create(fakeData3)
 
   const endpoint = "/videos/" + String(fakeVideo.id) + "/comments";
   const response = await client.get(endpoint).end()
   response.assertStatus(200);
-  response.assertJSONSubset([fakeData3])
+  response.assertJSONSubset([{comment: "First"}])
 
+  await fakeComment.delete()
   await fakeVideo.delete()
   await fakeUser.delete()
-  await fakeComment.delete()
 })
 
 test('Should POST a comment to a video at /videos/:video_id/comments', async ({ client, assert }) => {
