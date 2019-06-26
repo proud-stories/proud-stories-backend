@@ -259,7 +259,7 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
       }
     });
     //if the balance is sufficient, create a like and deduct from balance
-    if (balance < 10) {
+    if (balance >= 10) {
       await Database.table("video_likes")
         .insert({
           video_id: videoId,
@@ -280,6 +280,9 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
             error
           });
         });
+    }
+    else {
+      response.status(500).send({error: "Add credits."})
     }
   }
 });
