@@ -159,6 +159,9 @@ Route.delete("/videos/:id", async ({ params, response }) => {
 
 //POST video and save to S3
 Route.post("upload", async ({ request, response }) => {
+  const { auth_id } = request.post();
+  const user = await User.findBy('auth_id', auth_id);
+  const userId = user.id;
 
   const video = new Video();
 
@@ -177,7 +180,11 @@ Route.post("upload", async ({ request, response }) => {
   delete video["$attributes"].categories;
   const videoId = await Database.table("videos")
     .insert({
-      ...video["$attributes"],
+      // ...video["$attributes"],
+      user_id: userId,
+      title: video.title,
+      description: video.description,
+      url: video.url,
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
     })
