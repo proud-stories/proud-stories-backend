@@ -97,7 +97,7 @@ Route.get("videos/:id/comments", async ({response, params}) => {
   response.status(200).send(comments.rows)
 })
 //POST comments with video id
-Route.post("videos/:video_id/comments", async ({request, params}) => {
+Route.post("videos/:video_id/comments", async ({request, params, response}) => {
   const { comment, auth_id } = request.post()
   const user = await User.findBy('auth_id', auth_id);
   const user_id = user.id;
