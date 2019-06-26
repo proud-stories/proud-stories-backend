@@ -245,7 +245,7 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
     })  
-    response.status(200)
+    response.status(200).send()
   } else {
     //otherwise calculate the balance
     let balance = 0
