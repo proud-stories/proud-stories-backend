@@ -233,33 +233,59 @@ Route.post("videos/:id/likes", async ({ request, response, params }) => {
     userId
   );
   //check one per day
-  if (likes.rows.length > 0) {
-    response.status(500).json({
-      status: 500,
-      error: "You reached your daily like limit"
-    });
-    return;
-  }
-  await Database.table("video_likes")
+  
+  //calculate the balance
+
+  //check if they haven't used a like today, use their free lik
+  if (likes.rows.length === 0) {
+    await Database.table("video_likes")
     .insert({
       video_id: videoId,
       user_id: userId,
       created_at: Database.fn.now(),
       updated_at: Database.fn.now()
-    })
-    .then( async () => {
-      //the like was created, now add a transaction
-      const transaction = await Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
-      response.status(200).json({ amount: transaction.amount, type: transaction.type });
-
-      //todo: use a ".then()" to check if transaction successfully inserted.
-    })
-    .catch((error) => {
-      response.status(500).json({
-        status: 500,
-        error
-      });
+    })  
+    response.status(200).send()
+  } else {
+    //otherwise calculate the balance
+    let balance = 0
+    const transactions = await Database.table("transactions")
+      .where("receiver_id", userId)
+      .orWhere("sender_id", userId);
+    transactions.forEach((item) => {
+      if (item.type === "like" && item.sender_id === userId) {
+        balance -= item.amount;
+      } else if (item.type === "deposit" || item.receiver_id === userId) {
+        balance += item.amount;
+      }
     });
+    //if the balance is sufficient, create a like and deduct from balance
+    if (balance >= 10) {
+      await Database.table("video_likes")
+        .insert({
+          video_id: videoId,
+          user_id: userId,
+          created_at: Database.fn.now(),
+          updated_at: Database.fn.now()
+        })
+        .then( async () => {
+          //the like was created, now add a transaction
+          const transaction = await Transaction.create({sender_id: userId, receiver_id: video.user_id, amount: 10, type: 'like'})
+          response.status(200).json({ amount: transaction.amount, type: transaction.type });
+
+          //todo: use a ".then()" to check if transaction successfully inserted.
+        })
+        .catch((error) => {
+          response.status(500).json({
+            status: 500,
+            error
+          });
+        });
+    }
+    else {
+      response.status(500).send({error: "Add credits."})
+    }
+  }
 });
 //GET all transactions
 Route.get("transactions", async ({ params }) => {
