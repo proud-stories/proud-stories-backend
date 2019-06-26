@@ -104,7 +104,7 @@ Route.post("videos/:video_id/comments", async ({request, params, response}) => {
   const { video_id } = params
   const commentData = { comment, user_id, video_id }
   const mycomment = await Comment.create(commentData)
-  response.send({ ...mycomment, name: user.name });
+  response.send({ ...comment, video_id, created_at: mycomment.created_at, updated_at: mycomment.updated_at,  name: user.name });
 })
 //GET replies by VIDEO ID with COMMENTS
 Route.get("videos/:video_id/comments/:comment_id/replies", async ({response, params}) => {
