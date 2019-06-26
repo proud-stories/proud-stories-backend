@@ -167,15 +167,15 @@ Route.post("upload", async ({ request, response }) => {
     video[name] = value;
   });
   
-  const user = await User.findBy('auth_id', video["$attributes"].auth_id);
-  video.user_id = user.id;  
-  
   request.multipart.file("video", {}, async (file) => {
     const newFile = randomstring.generate() + ".mp4";
     await Drive.disk("s3").put(newFile, file.stream);
     video.url = Drive.disk("s3").getUrl(newFile);
   });
   await request.multipart.process();
+  
+  const user = await User.findBy('auth_id', video["$attributes"].auth_id);
+  video.user_id = user.id;  
 
   const categories = [...JSON.parse(video["$attributes"].categories)];
   delete video["$attributes"].categories;
