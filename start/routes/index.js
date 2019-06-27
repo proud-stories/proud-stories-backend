@@ -175,20 +175,18 @@ Route.post("upload", async ({ request, response }) => {
 
   const categories = [...JSON.parse(video["$attributes"].categories)];
   delete video["$attributes"].categories;
-  const videoId = await Database.table("videos")
-    .insert({
-      ...video["$attributes"],
-      created_at: Database.fn.now(),
-      updated_at: Database.fn.now()
-    })
-    .returning("id")
-    .catch(() => {
-      response.status(500).json({
-        status: 500,
-        error: "An error occurred saving the video"
-      });
-      return;
+  
+  const videoData = {...video["$attributes"]}
+  const new_video = Video.create(videoData)
+  const videoId = new_video.id
+  
+  if (typeof(videoId) !== 'number') {
+    response.status(500).json({
+      status: 500,
+      error: "An error occurred saving the video"
     });
+    return;
+  }
 
   categories.forEach((category) => {
     Database.insert({
