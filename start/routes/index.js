@@ -181,7 +181,13 @@ Route.post("upload", async ({ request, response }) => {
   delete video["$attributes"].categories;
   delete video["$attributes"].auth_id;
   
-  const videoData = {...video["$attributes"]}
+  const videoData = 
+  {
+    title: video["$attributes"].title,
+    description: video["$attributes"].description,
+    url: video["$attributes"].url,
+    user_id: video["$attributes"].user_id
+  }
   const new_video = Video.create(videoData)
   const videoId = new_video.id
   
