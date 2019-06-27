@@ -16,7 +16,7 @@ const Database = use('Database')
 
 class VideoSeeder {
   async run () {
-    const videos = await Database.table('videos').insert([{
+    const videos = await Database.table('videos').insert([
     {
       url: 'https://proud-videos.s3-ap-northeast-1.amazonaws.com/ug.mp4',
       title: 'My best friend',
