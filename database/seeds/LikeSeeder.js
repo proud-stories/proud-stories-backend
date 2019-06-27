@@ -19,26 +19,77 @@ class LikeSeeder {
     const likes = await Database.table('video_likes').insert(
       [{
         video_id:1,
-        user_id:2,
+        user_id:3,
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         video_id:2,
-        user_id:2,
+        user_id:3,
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
-        video_id: 1,
+        video_id: 3,
+        user_id: 3,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 4,
+        user_id: 3,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 5,
         user_id: 3,
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         video_id: 1,
-        user_id: 1
-      }]
+        user_id: 4,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 2,
+        user_id: 4,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 2,
+        user_id: 5,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 5,
+        user_id: 5,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 4,
+        user_id: 5,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 1,
+        user_id: 6,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+      {
+        video_id: 1,
+        user_id: 5,
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+    ]
     )
   }
 }
