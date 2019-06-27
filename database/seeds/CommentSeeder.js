@@ -19,46 +19,33 @@ class CommentSeeder {
     const comments = await Database.table('comments').insert(
       [{
         "video_id":1,
-        "user_id": 1,
-        "comment": "Absolutely love this!",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
         "user_id": 3,
-        "comment": "Ew",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
-        "user_id": 2,
-        "comment": "Get a hair cut",
+        "comment": "I wish I could drink that wine right now!",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "video_id":1,
-        "user_id": 2,
-        "comment": "Just why",
-        "created_at": Database.fn.now(),
-        "updated_at": Database.fn.now()
-      },
-      {
-        "video_id":2,
-        "user_id": 1,
-        "comment": "Seriously? Who uses constructors in 2019?",
+        "user_id": 4,
+        "comment": "I'm allergic to pineapples :/ looks delicious!",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
       },
       {
         "video_id":1,
-        "user_id": 3,
-        "comment": "Niiiiiiiice.",
+        "user_id": 5,
+        "comment": "Is it organic?",
         "created_at": Database.fn.now(),
         "updated_at": Database.fn.now()
-      }]
+      },
+      {
+        "video_id":2,
+        "user_id": 5,
+        "comment": "I'm moved :,)",
+        "created_at": Database.fn.now(),
+        "updated_at": Database.fn.now()
+      },
+    ]
     )
   }
 }
