@@ -29,7 +29,7 @@
     "@adonisjs/session": "^1.0.27",
     "@adonisjs/shield": "^1.0.8",
     "@adonisjs/vow": "^1.0.17",
-    "aws-sdk": "^2.469.0",
+    "aws-sdk": "^2.814.0",
     "express-jwt": "^5.3.1",
     "express-jwt-authz": "^2.3.1",
     "jwks-rsa": "^1.5.1",
